@@ -8,6 +8,14 @@
             <h5 class="card-title">Register</h5>
             <form asp-action="Register" asp-controller="User">
                 <div class="form-group">
+                    <label for="firstname">First Name</label>
+                    <input type="text" name="firstname" class="form-control" id="firstname" placeholder="Fist Name">
+                </div>
+                <div class="form-group">
+                    <label for="lastname">Last Name</label>
+                    <input type="text" name="lastname" class="form-control" id="lastname" placeholder="Last Name">
+                </div>
+                <div class="form-group">
                     <label for="email">Email address</label>
                     <input type="email" name="email" class="form-control" id="email" placeholder="Enter email">
                 </div>
@@ -18,6 +26,14 @@
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" name="password" class="form-control" id="password" placeholder="Password">
+                </div>
+                <div class="form-group">
+                    <label for="phonenumber">Phone Number</label>
+                    <input type="text" name="phonenumber" class="form-control" id="phonenumber" placeholder="Phone number">
+                </div>
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <input type="text" name="city" class="form-control" id="city" placeholder="City">
                 </div>
                 <div class="">
                     <button type="submit" class="btn btn-primary d-flex" style="justify-self: start;">Submit</button>

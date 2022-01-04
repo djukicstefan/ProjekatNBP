@@ -55,13 +55,14 @@ namespace ProjekatNBP.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(string username, string password, string email)
+        public async Task<IActionResult> Register(string username, string password, string firstname, string lastname, 
+            string phonenumber, string email, string city)
         {
             if (!HttpContext.Session.IsUsernameEmpty())
                 return RedirectToAction("Index", "Home");
 
             var statementText = new StringBuilder();
-            statementText.Append($"CREATE (user:User {{username: '{username}', password:  '{password}', email:  '{email}' }}) return id(user)");
+            statementText.Append($"CREATE (user:User {{username: '{username}', password:  '{password}', firstname: '{firstname}', lastname: '{lastname}', phonenumber: '{phonenumber}', email:  '{email}', city: '{city}' }}) return id(user)");
 
             IResultCursor result;
             int userId = -1;

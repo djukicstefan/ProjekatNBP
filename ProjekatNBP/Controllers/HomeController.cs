@@ -42,5 +42,13 @@ namespace ProjekatNBP.Controllers
 
             return View();
         }
+
+        public IActionResult Login()
+        {
+            if (!HttpContext.Session.IsUsernameEmpty())
+                return RedirectToAction("Index");
+
+            return View();
+        }
     }
 }

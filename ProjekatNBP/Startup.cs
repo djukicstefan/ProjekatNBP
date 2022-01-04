@@ -57,7 +57,7 @@ namespace ProjekatNBP
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Register}");
+                    pattern: "{controller=Home}/{action=Login}");
             });
         }
     }
