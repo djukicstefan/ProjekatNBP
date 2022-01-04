@@ -1,7 +1,6 @@
-# ProjekatNBP
-Projekat iz predmeta Napredne Baze Podataka
+# Projekat iz predmeta Napredne Baze Podataka
 
-Projekat će obuhvatati baze Redis i Neo4j. 
+Projekat će obuhvatati baze #Redis i #Neo4j. 
 Ideja nam je da napravimo sajt koji će omogućiti korisnicima prodaju i kupovinu na internetu.
 
 Koristićemo bazu Redis za: 
