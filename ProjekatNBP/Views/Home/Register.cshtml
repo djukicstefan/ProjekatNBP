@@ -1,0 +1,29 @@
+﻿@{
+    ViewData["Title"] = "Register page";
+}
+
+<div class="container d-flex" style="justify-content: center;">
+    <div class="card" style="width: 30rem;">
+        <div class="card-body">
+            <h5 class="card-title">Register</h5>
+            <form asp-action="Register" asp-controller="User">
+                <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input type="email" name="email" class="form-control" id="email" placeholder="Enter email">
+                </div>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" name="username" class="form-control" id="username" placeholder="Username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" class="form-control" id="password" placeholder="Password">
+                </div>
+                <div class="">
+                    <button type="submit" class="btn btn-primary d-flex" style="justify-self: start;">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
