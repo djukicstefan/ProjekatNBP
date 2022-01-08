@@ -2,7 +2,186 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-2  category-col">
+            <div class="card card-shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Kategorije:</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="#">Racunari</a>
+                            <span class="badge badge-primary badge-pill">14</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="#">Knjige</a>
+                            <span class="badge badge-primary badge-pill">2</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="#">Ostalo</a>
+                            <span class="badge badge-primary badge-pill">1</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-7">
+
+            <div class="container">
+                <div class="row main-row">
+                    <div class="col-4 d-flex justify-content-center">
+                        <div class="card card-shadow" style="width: 18rem;">
+                            <div class="card-body">
+                                <h5 class="card-title">Naslov oglasa</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">Kategorija</h6>
+                                <p class="card-text">Kratak opis oglasa...</p>
+                                <a href="#" class="card-link">Otvori</a>
+                                <a href="#" class="card-link">Sacuvaj</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4 d-flex justify-content-center">
+                        <div class="card card-shadow" style="width: 18rem;">
+                            <div class="card-body">
+                                <h5 class="card-title">Naslov oglasa</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">Kategorija</h6>
+                                <p class="card-text">Kratak opis oglasa...</p>
+                                <a href="#" class="card-link">Otvori</a>
+                                <a href="#" class="card-link">Sacuvaj</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4 d-flex justify-content-center">
+                        <div class="card card-shadow" style="width: 18rem;">
+                            <div class="card-body">
+                                <h5 class="card-title">Naslov oglasa</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">Kategorija</h6>
+                                <p class="card-text">Kratak opis oglasa...</p>
+                                <a href="#" class="card-link">Otvori</a>
+                                <a href="#" class="card-link">Sacuvaj</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4 d-flex justify-content-center">
+                        <div class="card card-shadow" style="width: 18rem;">
+                            <div class="card-body">
+                                <h5 class="card-title">Naslov oglasa</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">Kategorija</h6>
+                                <p class="card-text">Kratak opis oglasa...</p>
+                                <a href="#" class="card-link">Otvori</a>
+                                <a href="#" class="card-link">Sacuvaj</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-3 leaderboard-col">
+            <div class="card card-shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Leaderboard</h5>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Ime</th>
+                                <th scope="col">Ocene</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">1</th>
+                                <td><a href="#">Mark</a></td>
+                                <td class="text-success">2343</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">2</th>
+                                <td><a href="#">Jacob</a></td>
+                                <td class="text-success">1230</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">3</th>
+                                <td><a href="#">Larry</a></td>
+                                <td class="text-success">887</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Forma za prijavu -->
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginModalLongTitle">Prijavi se</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="login-username">Korisničko ime</label>
+                        <input type="text" class="form-control" id="login-username" placeholder="Korisničko ime">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Šifra</label>
+                        <input type="password" class="form-control" id="login-password" placeholder="Šifra">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Prijavi se</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Forma za registraciju -->
+<div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="registerModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registerModalLongTitle">Registruj se</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="register-username">Korisničko ime</label>
+                        <input type="text" class="form-control" id="register-username" placeholder="Korisničko ime">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email adresa</label>
+                        <input type="text" class="form-control" id="register-email" placeholder="Email adresa">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-city">Grad</label>
+                        <input type="text" class="form-control" id="register-city" placeholder="Grad">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-phone">Broj telefona</label>
+                        <input type="text" class="form-control" id="register-phone" placeholder="Broj telefona">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Šifra</label>
+                        <input type="password" class="form-control" id="register-password" placeholder="Šifra">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password-confirm">Ponovite šifru</label>
+                        <input type="password" class="form-control" id="register-password-confirm" placeholder="Ponovite šifru">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Prijavi se</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>

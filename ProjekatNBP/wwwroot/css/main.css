@@ -1,0 +1,16 @@
+﻿body {
+    background-color: rgb(97, 97, 97);
+}
+
+.category-col,
+.leaderboard-col {
+    margin-top: 8px;
+}
+
+.main-row .col-4 {
+    margin: 8px 0;
+}
+
+.card-shadow {
+    box-shadow: 0 6px 8px #0009;
+}
