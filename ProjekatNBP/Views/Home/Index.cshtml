@@ -1,4 +1,6 @@
-﻿@{
+﻿@model List<Category>
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
@@ -9,18 +11,14 @@
                 <div class="card-body">
                     <h5 class="card-title">Kategorije:</h5>
                     <ul class="list-group">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <a href="#">Racunari</a>
-                            <span class="badge badge-primary badge-pill">14</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <a href="#">Knjige</a>
-                            <span class="badge badge-primary badge-pill">2</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <a href="#">Ostalo</a>
-                            <span class="badge badge-primary badge-pill">1</span>
-                        </li>
+                        @if (Model.Count > 0)
+                            foreach(var item in Model)
+                            {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <a href="#">@item.Name</a>
+                                <span class="badge badge-primary badge-pill">@item.Ads.Count</span>
+                            </li>
+                            }                       
                     </ul>
                 </div>
             </div>
@@ -30,50 +28,25 @@
 
             <div class="container">
                 <div class="row main-row">
-                    <div class="col-4 d-flex justify-content-center">
-                        <div class="card card-shadow" style="width: 18rem;">
-                            <div class="card-body">
-                                <h5 class="card-title">Naslov oglasa</h5>
-                                <h6 class="card-subtitle mb-2 text-muted">Kategorija</h6>
-                                <p class="card-text">Kratak opis oglasa...</p>
-                                <a href="#" class="card-link">Otvori</a>
-                                <a href="#" class="card-link">Sacuvaj</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-4 d-flex justify-content-center">
-                        <div class="card card-shadow" style="width: 18rem;">
-                            <div class="card-body">
-                                <h5 class="card-title">Naslov oglasa</h5>
-                                <h6 class="card-subtitle mb-2 text-muted">Kategorija</h6>
-                                <p class="card-text">Kratak opis oglasa...</p>
-                                <a href="#" class="card-link">Otvori</a>
-                                <a href="#" class="card-link">Sacuvaj</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-4 d-flex justify-content-center">
-                        <div class="card card-shadow" style="width: 18rem;">
-                            <div class="card-body">
-                                <h5 class="card-title">Naslov oglasa</h5>
-                                <h6 class="card-subtitle mb-2 text-muted">Kategorija</h6>
-                                <p class="card-text">Kratak opis oglasa...</p>
-                                <a href="#" class="card-link">Otvori</a>
-                                <a href="#" class="card-link">Sacuvaj</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-4 d-flex justify-content-center">
-                        <div class="card card-shadow" style="width: 18rem;">
-                            <div class="card-body">
-                                <h5 class="card-title">Naslov oglasa</h5>
-                                <h6 class="card-subtitle mb-2 text-muted">Kategorija</h6>
-                                <p class="card-text">Kratak opis oglasa...</p>
-                                <a href="#" class="card-link">Otvori</a>
-                                <a href="#" class="card-link">Sacuvaj</a>
-                            </div>
-                        </div>
-                    </div>
+                    @if (Model.Count > 0)
+                        foreach (var item in Model)
+                        {
+                            @foreach (var ad in item.Ads)
+                            {
+                                <div class="col-4 d-flex justify-content-center">
+                                    <div class="card card-shadow" style="width: 18rem;">
+                                        <div class="card-body">
+                                            <h5 class="card-title">@ad.Name</h5>
+                                            <h6 class="card-subtitle mb-2 text-muted">@ad.Category</h6>
+                                            <h6 class="card-subtitle mb-2 text-muted">Cena: @ad.Price</h6>
+                                            <p class="card-text">@ad.Description</p>
+                                            <a href="#" class="card-link">Otvori</a>
+                                            <a href="#" class="card-link">Sacuvaj</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
                 </div>
             </div>
 
@@ -127,14 +100,14 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form>
+                <form method="post" asp-action="Login" asp-controller="User">
                     <div class="form-group">
-                        <label for="login-username">Korisničko ime</label>
-                        <input type="text" class="form-control" id="login-username" placeholder="Korisničko ime">
+                        <label for="username">Korisničko ime</label>
+                        <input type="text" name="username" class="form-control" id="username" placeholder="Korisničko ime">
                     </div>
                     <div class="form-group">
-                        <label for="login-password">Šifra</label>
-                        <input type="password" class="form-control" id="login-password" placeholder="Šifra">
+                        <label for="password">Šifra</label>
+                        <input type="password" name="password" class="form-control" id="password" placeholder="Šifra">
                     </div>
                     <button type="submit" class="btn btn-primary">Prijavi se</button>
                 </form>
@@ -154,32 +127,67 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form>
+                <form asp-action="Register" asp-controller="User">
                     <div class="form-group">
-                        <label for="register-username">Korisničko ime</label>
-                        <input type="text" class="form-control" id="register-username" placeholder="Korisničko ime">
+                        <label for="username">Korisničko ime</label>
+                        <input type="text" name="username" class="form-control" id="username" placeholder="Korisničko ime">
                     </div>
                     <div class="form-group">
-                        <label for="register-email">Email adresa</label>
-                        <input type="text" class="form-control" id="register-email" placeholder="Email adresa">
+                        <label for="email">Email adresa</label>
+                        <input type="text" name="email" class="form-control" id="email" placeholder="Email adresa">
                     </div>
                     <div class="form-group">
-                        <label for="register-city">Grad</label>
-                        <input type="text" class="form-control" id="register-city" placeholder="Grad">
+                        <label for="city">Grad</label>
+                        <input type="text" name="city" class="form-control" id="city" placeholder="Grad">
                     </div>
                     <div class="form-group">
-                        <label for="register-phone">Broj telefona</label>
-                        <input type="text" class="form-control" id="register-phone" placeholder="Broj telefona">
+                        <label for="phone">Broj telefona</label>
+                        <input type="text" name="phone" class="form-control" id="phone" placeholder="Broj telefona">
                     </div>
                     <div class="form-group">
-                        <label for="register-password">Šifra</label>
-                        <input type="password" class="form-control" id="register-password" placeholder="Šifra">
+                        <label for="password">Šifra</label>
+                        <input type="password" name="password" class="form-control" id="password" placeholder="Šifra">
                     </div>
                     <div class="form-group">
                         <label for="register-password-confirm">Ponovite šifru</label>
-                        <input type="password" class="form-control" id="register-password-confirm" placeholder="Ponovite šifru">
+                        <input type="password" class="form-control" id="password-confirm" placeholder="Ponovite šifru">
                     </div>
                     <button type="submit" class="btn btn-primary">Prijavi se</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Forma za oglas -->
+<div class="modal fade" id="adModal" tabindex="-1" role="dialog" aria-labelledby="adModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="adModalLongTitle">Postavi oglas</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-action="PlaceAd" asp-controller="User">
+                    <div class="form-group">
+                        <label for="name">Naziv</label>
+                        <input type="text" name="name" class="form-control" id="name" placeholder="Naziv">
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Kategorija</label>
+                        <input type="text" name="category" class="form-control" id="category" placeholder="Kategorija">
+                    </div>
+                    <div class="form-group">
+                        <label for="price">Cena</label>
+                        <input type="text" name="price" class="form-control" id="price" placeholder="Cena">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Opis navedenog oglasa</label>
+                        <input type="text" name="description" class="form-control" id="description" placeholder="Opis">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Postavi oglas</button>
                 </form>
             </div>
         </div>

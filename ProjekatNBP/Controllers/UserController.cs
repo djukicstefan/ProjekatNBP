@@ -55,14 +55,13 @@ namespace ProjekatNBP.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(string username, string password, string firstname, string lastname, 
-            string phonenumber, string email, string city)
+        public async Task<IActionResult> Register(string username, string email, string city, string phone, string password)
         {
             if (!HttpContext.Session.IsUsernameEmpty())
                 return RedirectToAction("Index", "Home");
 
             var statementText = new StringBuilder();
-            statementText.Append($"CREATE (user:User {{username: '{username}', password:  '{password}', firstname: '{firstname}', lastname: '{lastname}', phonenumber: '{phonenumber}', email:  '{email}', city: '{city}' }}) return id(user)");
+            statementText.Append($"CREATE (user:User {{username: '{username}', password:  '{password}', phone: '{phone}', email:  '{email}', city: '{city}' }}) return id(user)");
 
             IResultCursor result;
             int userId = -1;
@@ -86,6 +85,63 @@ namespace ProjekatNBP.Controllers
             return RedirectToAction("Register", "Home");
         }
 
+        public async Task<IActionResult> PlaceAd(string name, string category, string price, string description)
+        {
+            int userId = HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
+            if (HttpContext.Session.IsUsernameEmpty() || userId == -1)
+                return RedirectToAction("Login", "Home");
+
+            var statementText = new StringBuilder();
+            IResultCursor result;
+            int categoryID = -1;
+            int adId = -1;
+            IAsyncSession session = _driver.AsyncSession();
+            try
+            {
+                result = await session.RunAsync($"MATCH (c:Category {{ name: '{category}' }}) RETURN id(c)");
+
+                var res = await result.ToListAsync();
+                if (res.Count == 0)
+                {
+                    statementText.Append($"CREATE (category:Category {{ name: '{category}' }}) return id(category)");
+
+                    result = await session.RunAsync(statementText.ToString());
+                    categoryID = await result.SingleAsync(record => record["id(category)"].As<int>());
+                    statementText.Clear();
+                }
+                else
+                {
+                    categoryID = res[0]["id(c)"].As<int>();
+                }
+
+                statementText.Append($"CREATE (ad:Ad {{ name: '{name}', category: '{category}', price: '{price}', description: '{description}' }}) return id(ad)");
+                result = await session.RunAsync(statementText.ToString());
+                adId = await result.SingleAsync(record => record["id(ad)"].As<int>());
+
+                if(adId == -1)
+                    return RedirectToAction("Index", "Home"); //ako ne prodje pravljenje oglasa -> da se smisli nesto bolje
+
+                statementText.Clear();
+                statementText.Append(@$"MATCH(c:Category) WHERE id(c)={categoryID} 
+                                    MATCH (ad:Ad) WHERE id(ad)={adId} 
+                                    CREATE (c)-[:HAS]->(ad)");
+                session = _driver.AsyncSession();
+                result = await session.WriteTransactionAsync(tx => tx.RunAsync(statementText.ToString()));
+
+                statementText.Clear();
+                statementText.Append(@$"MATCH(u:User) WHERE id(u)={userId} 
+                                    MATCH (ad:Ad) WHERE id(ad)={adId} 
+                                    CREATE (u)-[:POSTED]->(ad)");
+                session = _driver.AsyncSession();
+                result = await session.WriteTransactionAsync(tx => tx.RunAsync(statementText.ToString()));
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
 
         //public async Task<IActionResult> FollowUser(int userToFollowId)
         //{
