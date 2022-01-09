@@ -143,6 +143,33 @@ namespace ProjekatNBP.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        public async Task<IActionResult> SaveAd(int adId)
+        {
+            int userId = HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
+            if (HttpContext.Session.IsUsernameEmpty() || userId == -1)
+                return RedirectToAction("Login", "Home");
+
+            IResultCursor result;            
+            IAsyncSession session = _driver.AsyncSession();
+            var statementText = new StringBuilder();
+            try
+            {
+                statementText.Append(@$"MATCH (u:User), (ad:Ad) 
+                                        WHERE id(u)={userId} AND id(ad)={adId}                                      
+                                        CREATE (u)-[s:SAVED]->(ad)
+                                        RETURN type(s)");
+                result = await session.WriteTransactionAsync(tx => tx.RunAsync(statementText.ToString()));
+
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        
         //public async Task<IActionResult> FollowUser(int userToFollowId)
         //{
         //    int userId = HttpContext.Session.GetInt32(TwittySessionKeys.UserId) ?? -1;

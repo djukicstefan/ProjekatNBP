@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Neo4j.Driver;
 using ProjekatNBP.Extensions;
 using ProjekatNBP.Models;
+using ProjekatNBP.Session;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace ProjekatNBP.Controllers
@@ -96,6 +99,43 @@ namespace ProjekatNBP.Controllers
                 return RedirectToAction("Index");
 
             return View();
+        }
+
+        public async Task<IActionResult> SavedAds()
+        {
+            int userId = HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
+            if (HttpContext.Session.IsUsernameEmpty() || userId == -1)
+                return RedirectToAction("Login", "Home");
+
+            List<Ad> adList = new List<Ad>();
+            IResultCursor result;
+            IAsyncSession session = _driver.AsyncSession();
+            try
+            {
+                result = await session.RunAsync($"MATCH (u:User)-[r:SAVED]-(ad:Ad) WHERE id(u) = {userId} RETURN ad");
+                var ads = await result.ToListAsync();
+                ads.ForEach(a =>
+                {
+                    INode ad1 = a["ad"].As<INode>();
+
+                    Ad ad = new Ad
+                    {
+                        Id = (int)ad1.Id,
+                        Name = ad1.Properties["name"].ToString(),
+                        Category = ad1.Properties["category"].ToString(),
+                        Price = ad1.Properties["price"].ToString(),
+                        Description = ad1.Properties["description"].ToString()
+                    };
+
+                    adList.Add(ad);
+                });
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+
+            return View(adList);
         }
     }
 }

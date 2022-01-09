@@ -1,7 +1,7 @@
 ﻿@model List<Category>
 
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Početna";
 }
 
 <div class="container-fluid">
@@ -41,7 +41,7 @@
                                             <h6 class="card-subtitle mb-2 text-muted">Cena: @ad.Price</h6>
                                             <p class="card-text">@ad.Description</p>
                                             <a href="#" class="card-link">Otvori</a>
-                                            <a href="#" class="card-link">Sacuvaj</a>
+                                            <a asp-controller="User" asp-action="SaveAd" asp-route-adId="@ad.Id" class="card-link">Sacuvaj</a>
                                         </div>
                                     </div>
                                 </div>
