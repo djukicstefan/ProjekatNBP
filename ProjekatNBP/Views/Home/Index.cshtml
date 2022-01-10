@@ -1,4 +1,4 @@
-﻿@model List<Category>
+﻿@model Ads
 
 @{
     ViewData["Title"] = "Početna";
@@ -11,14 +11,14 @@
                 <div class="card-body">
                     <h5 class="card-title">Kategorije:</h5>
                     <ul class="list-group">
-                        @if (Model.Count > 0)
-                            foreach(var item in Model)
+                        @if (Model.CategoryList.Count > 0)
+                            foreach (var item in Model.CategoryList)
                             {
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <a href="#">@item.Name</a>
-                                <span class="badge badge-primary badge-pill">@item.Ads.Count</span>
-                            </li>
-                            }                       
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a asp-controller="Home" asp-action="Index" asp-route-category="@item.Name">@item.Name</a>
+                                    <span class="badge badge-primary badge-pill">@item.Ads.Count</span>
+                                </li>
+                            }
                     </ul>
                 </div>
             </div>
@@ -28,10 +28,12 @@
 
             <div class="container">
                 <div class="row main-row">
-                    @if (Model.Count > 0)
-                        foreach (var item in Model)
+                    @if (Model.CategoryList.Count > 0)
+                        foreach (var item in Model.CategoryList)
                         {
-                            @foreach (var ad in item.Ads)
+                            string category = ViewContext.HttpContext.Request.Query.Count > 0 ? ViewContext.HttpContext.Request.Query["category"].FirstOrDefault() : "";
+                            var items = string.IsNullOrEmpty(category) ? item.Ads : item.Ads.Where(x => x.Category.Equals(category));
+                            @foreach (var ad in items)
                             {
                                 <div class="col-4 d-flex justify-content-center">
                                     <div class="card card-shadow" style="width: 18rem;">
@@ -40,7 +42,7 @@
                                             <h6 class="card-subtitle mb-2 text-muted">@ad.Category</h6>
                                             <h6 class="card-subtitle mb-2 text-muted">Cena: @ad.Price</h6>
                                             <p class="card-text">@ad.Description</p>
-                                            <a href="#" class="card-link">Otvori</a>
+                                            <a asp-controller="Home" asp-action="AdView" asp-route-adId="@ad.Id" class="card-link">Otvori</a>
                                             <a asp-controller="User" asp-action="SaveAd" asp-route-adId="@ad.Id" class="card-link">Sacuvaj</a>
                                         </div>
                                     </div>
@@ -84,6 +86,26 @@
                     </table>
                 </div>
             </div>
+        </div>
+        <div class="row">
+            @if (Model.AdList != null)
+            {
+                @foreach (var ad in Model.AdList)
+                {
+                    <div class="col-4 d-flex justify-content-center">
+                        <div class="card card-shadow" style="width: 18rem;">
+                            <div class="card-body">
+                                <h5 class="card-title">@ad.Name</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">@ad.Category</h6>
+                                <h6 class="card-subtitle mb-2 text-muted">Cena: @ad.Price</h6>
+                                <p class="card-text">@ad.Description</p>
+                                <a asp-controller="Home" asp-action="AdView" asp-route-adId="@ad.Id" class="card-link">Otvori</a>
+                                <a asp-controller="User" asp-action="SaveAd" asp-route-adId="@ad.Id" class="card-link">Sacuvaj</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
         </div>
     </div>
 </div>

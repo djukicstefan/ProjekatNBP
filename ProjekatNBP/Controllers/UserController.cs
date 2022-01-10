@@ -40,7 +40,7 @@ namespace ProjekatNBP.Controllers
                 userId = res[0]["id(u)"].As<int>();
 
                 if (userId != -1)
-                {
+                {                    
                     HttpContext.Session.SetString(SessionKeys.Username, username);
                     HttpContext.Session.SetInt32(SessionKeys.UserId, userId);
                     return RedirectToAction("Index", "Home");

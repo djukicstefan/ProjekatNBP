@@ -8,6 +8,13 @@
     <link rel="stylesheet" href="~/css/main.css" />
 </head>
 
+@using Microsoft.AspNetCore.Http;
+@using ProjekatNBP.Session;
+@{
+
+    bool isLoged = ViewContext.HttpContext.Session.GetInt32(SessionKeys.UserId) > 0;
+}
+
 <body>
     <header>
         <!--
@@ -46,30 +53,40 @@
                     <li class="nav-item active">
                         <a class="nav-link" asp-controller="Home" asp-action="Index">Oglasi<span class="sr-only">(current)</span></a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Home" asp-action="SavedAds">Sacuvani oglasi</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Home" asp-action="MineAds">Moji oglasi</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-toggle="modal" data-target="#adModal">Postavi oglas</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Poruke <span class="badge badge-danger badge-pill">3   </span></a>
-                    </li>
+                    @if (isLoged)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="SavedAds">Sacuvani oglasi</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="MineAds">Moji oglasi</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-toggle="modal" data-target="#adModal">Postavi oglas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Poruke <span class="badge badge-danger badge-pill">3   </span></a>
+                        </li>
+                    }
                 </ul>
 
                 <ul class="navbar-nav my-2 my-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Home" asp-action="Profile">Profil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-toggle="modal" data-target="#loginModal">Prijavi se</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-toggle="modal" data-target="#registerModal">Registruj se</a>
-                    </li>
+                    @if (!isLoged)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-toggle="modal" data-target="#loginModal">Prijavi se</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-toggle="modal" data-target="#registerModal">Registruj se</a>
+                        </li>
+
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Profile">Profil</a>
+                        </li>
+                    }
                 </ul>
             </div>
         </nav>

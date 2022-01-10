@@ -25,10 +25,11 @@ namespace ProjekatNBP.Controllers
             _driver = driver;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string category)
         {
             List<Category> categoryList = new List<Category>();
-            IResultCursor result;            
+            List<Ad> adList = null;
+            IResultCursor result;
             IAsyncSession session = _driver.AsyncSession();
             try
             {
@@ -46,12 +47,12 @@ namespace ProjekatNBP.Controllers
                     categoryList.Add(category1);
                 });
 
-                for(int i = 0; i < categoryList.Count; i++)
+                for (int i = 0; i < categoryList.Count; i++)
                 {
                     session = _driver.AsyncSession();
                     result = await session.RunAsync($"MATCH (c:Category {{name: '{categoryList[i].Name}'}})-[r]-(ad:Ad) return ad");
                     var relationships = await result.ToListAsync();
-                    relationships.ForEach(rel => 
+                    relationships.ForEach(rel =>
                     {
                         INode rel1 = rel["ad"].As<INode>();
                         Ad ad = new Ad
@@ -65,13 +66,46 @@ namespace ProjekatNBP.Controllers
                         categoryList[i].Ads.Add(ad);
                     });
                 }
+
+                
+                int userId = HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
+                if(userId > 0)
+                {
+                    adList = new List<Ad>();
+                    StringBuilder statementText = new StringBuilder();
+                    session = _driver.AsyncSession();
+                    statementText.Append(@$"MATCH (u:User)-[r:VISITED]-(ad:Ad) 
+                                    WHERE id(u)={userId} 
+                                    RETURN ad, r, u");
+
+                    result = await session.RunAsync(statementText.ToString());
+                    var visitedAds = await result.ToListAsync();
+
+
+                    visitedAds.ForEach(a =>
+                    {
+                        INode aa = a["ad"].As<INode>();
+
+                        Ad ad = new Ad
+                        {
+                            Id = (int)aa.Id,
+                            Name = aa.Properties["name"].ToString(),
+                            Category = aa.Properties["category"].ToString(),
+                            Price = aa.Properties["price"].ToString(),
+                            Description = aa.Properties["description"].ToString()
+                        };
+
+                        adList.Add(ad);
+                    });
+                }
+                
             }
             finally
             {
                 await session.CloseAsync();
             }
 
-            return View(categoryList);
+            return View(new Ads { CategoryList = categoryList, AdList = adList});
         }
 
         public IActionResult Privacy()
@@ -205,6 +239,76 @@ namespace ProjekatNBP.Controllers
             }
 
             return View(adList);
+        }
+
+        public async Task<IActionResult> AdView(int adId)
+        {
+            int userId = HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
+            if (HttpContext.Session.IsUsernameEmpty() || userId == -1)
+                return RedirectToAction("Login", "Home");
+
+            Ad ad;
+            var statementText = new StringBuilder();
+            IResultCursor result;
+            IAsyncSession session = _driver.AsyncSession();
+            try
+            {
+                result = await session.RunAsync($"MATCH (ad:Ad) WHERE id(ad) = {adId} RETURN ad");
+                var ad1 = await result.SingleAsync();
+
+                INode ad2 = ad1["ad"].As<INode>();
+
+                ad = new Ad
+                {
+                    Id = (int)ad2.Id,
+                    Name = ad2.Properties["name"].ToString(),
+                    Category = ad2.Properties["category"].ToString(),
+                    Price = ad2.Properties["price"].ToString(),
+                    Description = ad2.Properties["description"].ToString()
+                };
+
+                session = _driver.AsyncSession();
+                statementText.Append(@$"MATCH (u:User)-[r:VISITED]-(ad:Ad) 
+                                    WHERE id(u)={userId} 
+                                    RETURN ad, r, u");
+
+                result = await session.RunAsync(statementText.ToString());
+                var visitedAds = await result.ToListAsync();
+
+                if(visitedAds.Count < 5)
+                {
+                    session = _driver.AsyncSession();
+                    statementText.Clear();
+                    statementText.Append(@$"MATCH(u:User) WHERE id(u)={userId} 
+                                    MATCH (ad:Ad) WHERE id(ad)={adId} 
+                                    CREATE (u)-[:VISITED {{ timestamp: {DateTime.Now.Ticks} }}]->(ad)");
+                    result = await session.RunAsync(statementText.ToString());
+                }
+                else
+                {
+                    long min = visitedAds.Min(x => (long)x["r"].As<IRelationship>().Properties["timestamp"]);
+                    session = _driver.AsyncSession();
+                    statementText.Clear();
+                    statementText.Append(@$"MATCH(u:User)-[r:VISITED]->(ad:Ad) 
+                                            WHERE id(u)={userId} AND r.timestamp={min} 
+                                            DELETE r");
+                    result = await session.RunAsync(statementText.ToString());
+
+
+                    session = _driver.AsyncSession();
+                    statementText.Clear();
+                    statementText.Append(@$"MATCH(u:User) WHERE id(u)={userId} 
+                                    MATCH (ad:Ad) WHERE id(ad)={adId} 
+                                    CREATE (u)-[:VISITED {{ timestamp: {DateTime.Now.Ticks} }}]->(ad)");
+                    result = await session.RunAsync(statementText.ToString());
+                }                
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+
+            return View(ad);
         }
     }
 }
