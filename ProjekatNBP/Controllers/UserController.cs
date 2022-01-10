@@ -168,38 +168,6 @@ namespace ProjekatNBP.Controllers
 
             return RedirectToAction("Index", "Home");
         }
-
         
-        //public async Task<IActionResult> FollowUser(int userToFollowId)
-        //{
-        //    int userId = HttpContext.Session.GetInt32(TwittySessionKeys.UserId) ?? -1;
-        //    if (HttpContext.Session.IsUsernameEmpty() || userId == -1)
-        //        return RedirectToAction("Login");
-
-        //    var statementText = new StringBuilder();
-        //    statementText.Append(@$"MATCH(u:User) WHERE id(u)={userId} 
-        //                            MATCH (uu:User) WHERE id(uu)={userToFollowId} 
-        //                            CREATE (u)-[:FOLLOW]->(uu)");
-        //    var session = _driver.AsyncSession();
-        //    var result = await session.WriteTransactionAsync(tx => tx.RunAsync(statementText.ToString()));
-        //    return RedirectToAction("Index", "Home");
-        //}
-
-
-        //public async Task<IActionResult> UnfollowUser(int userToUnfollowId)
-        //{
-        //    int userId = HttpContext.Session.GetInt32(TwittySessionKeys.UserId) ?? -1;
-        //    if (HttpContext.Session.IsUsernameEmpty() || userId == -1)
-        //        return RedirectToAction("Login");
-
-        //    var statementText = new StringBuilder();
-        //    statementText.Append(@$"MATCH(u:User) WHERE id(u)={userId}
-        //                            MATCH (uu:User) WHERE id(uu)={userToUnfollowId} 
-        //                            MATCH (u)-[x:FOLLOW]->(uu) DELETE x");
-        //    var session = _driver.AsyncSession();
-        //    var result = await session.WriteTransactionAsync(tx => tx.RunAsync(statementText.ToString()));
-        //    return RedirectToAction("Index", "Home");
-
-        //}
     }
 }
