@@ -119,7 +119,7 @@ namespace ProjekatNBP.Controllers
                         statementText.Append(@$"MATCH (c:Category)-[r:HAS]-(ad:Ad) 
                                     WHERE c.name = '{favCategory}' 
                                     RETURN ad                                    
-                                    LIMIT 3");
+                                    ");
 
                         result = await session.RunAsync(statementText.ToString());
                         var adsForRecommend = await result.ToListAsync();
@@ -138,7 +138,9 @@ namespace ProjekatNBP.Controllers
                                 Description = aa.Properties["description"].ToString()
                             };
 
-                            adRecomendList.Add(ad);
+                            Ad tmp = adList.Find(x => x.Id == ad.Id);
+                            if(tmp == null)
+                                adRecomendList.Add(ad);
                         });
                     }
                 }
