@@ -17,10 +17,9 @@
                                 <h5 class="card-title">@ad.Name</h5>
                                 <h6 class="card-subtitle mb-2 text-muted">@ad.Category</h6>
                                 <h6 class="card-subtitle mb-2 text-muted">Cena: @ad.Price</h6>
-                                <p class="card-text">@ad.Description</p>
-                                @*<a href="#" data-toggle="modal" data-target="#changeModal" class="card-link">Izmeni</a>*@
-                                <button class="btn-default btn-lg" onclick="@($"OpenModalPopUp('{ad.Id}', '{ad.Name}', '{ad.Category}', '{ad.Price}', '{ad.Description}')");">Izmeni</button>
-                                <a asp-controller="User" asp-action="DeleteAd" asp-route-adId="@ad.Id" class="card-link">Obriši</a>
+                                <p class="card-text">@ad.Description</p>                                
+                                <button class="btn-default" onclick="@($"OpenModalPopUp('{ad.Id}', '{ad.Name}', '{ad.Category}', '{ad.Price}', '{ad.Description}')");">Izmeni</button>
+                                <a asp-controller="User" asp-action="DeleteAd" asp-route-adId="@ad.Id" class="btn-danger">Obriši</a>
                             </div>
                         </div>
                     </div>

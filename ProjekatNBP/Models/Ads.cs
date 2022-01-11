@@ -9,5 +9,6 @@ namespace ProjekatNBP.Models
     {
         public List<Category> CategoryList { get; set; }
         public List<Ad> AdList { get; set; }
+        public List<Ad> AdRecomendList { get; set; }
     }
 }
