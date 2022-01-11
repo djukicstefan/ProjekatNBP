@@ -310,5 +310,27 @@ namespace ProjekatNBP.Controllers
 
             return View(ad);
         }
+        
+        public async Task<IActionResult> ChangeAd(string id, string name, string category, string price, string descritpion)
+        {
+            int adId = int.Parse(id);            
+            var statementText = new StringBuilder();
+            IResultCursor result;
+            IAsyncSession session = _driver.AsyncSession();
+            try
+            {                
+                statementText.Append(@$"MATCH (ad:Ad) 
+                                    WHERE id(ad)={adId}
+                                    SET ad = {{ name: '{name}', category: '{category}', price: '{price}', description: '{descritpion}' }} ");
+
+                result = await session.RunAsync(statementText.ToString());
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+
+            return RedirectToAction("MineAds", "Home");
+        }
     }
 }

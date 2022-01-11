@@ -168,6 +168,21 @@ namespace ProjekatNBP.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+
+        public async Task<IActionResult> DeleteAd(int adId)
+        {
+            IResultCursor result;            
+            IAsyncSession session = _driver.AsyncSession();
+            try
+            {
+                result = await session.RunAsync($"MATCH (n) WHERE id(n) = {adId} DETACH DELETE n");                                
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+            return RedirectToAction("MineAds", "Home");
+        }
         
     }
 }

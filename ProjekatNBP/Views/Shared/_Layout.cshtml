@@ -12,7 +12,7 @@
 @using ProjekatNBP.Session;
 @{
 
-    bool isLoged = ViewContext.HttpContext.Session.GetInt32(SessionKeys.UserId) > 0;
+    bool isLoged = ViewContext.HttpContext.Session.GetInt32(SessionKeys.UserId) >= 0;
 }
 
 <body>
