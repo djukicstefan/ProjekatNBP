@@ -275,7 +275,7 @@ namespace ProjekatNBP.Controllers
                 result = await session.RunAsync(statementText.ToString());
                 var visitedAds = await result.ToListAsync();
 
-                if(visitedAds.Count < 5)
+                if(visitedAds.Count < 6)
                 {
                     session = _driver.AsyncSession();
                     statementText.Clear();
