@@ -14,3 +14,11 @@
 .card-shadow {
     box-shadow: 0 6px 8px #0009;
 }
+
+.chat-user-link:hover {
+    text-decoration: none;
+}
+
+.chat-user-bg {
+    background-color: rgba(139, 139, 139, 0.6);
+}
