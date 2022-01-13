@@ -1,15 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Neo4j.Driver;
 using ProjekatNBP.Hubs;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR.Redis;
 
 namespace ProjekatNBP
 {
@@ -31,7 +28,7 @@ namespace ProjekatNBP
                 options.IdleTimeout = TimeSpan.FromDays(1);
             });            
             services.AddSingleton(GraphDatabase.Driver("bolt://localhost:7687", AuthTokens.Basic("neo4j", "17101")));
-            services.AddSignalR();
+            services.AddSignalR().AddRedis("localhost:6379");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -63,7 +60,7 @@ namespace ProjekatNBP
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}");
 
-                endpoints.MapHub<ChatHub>("Home/chathub");
+                endpoints.MapHub<ChatHub>("/hub/Chat");
             });
         }
     }
