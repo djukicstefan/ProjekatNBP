@@ -15,6 +15,13 @@
                         <h6 class="card-subtitle mb-2 text-muted">@Model.Category</h6>
                         <h6 class="card-subtitle mb-2 text-muted">Cena: @Model.Price</h6>
                         <p class="card-text">@Model.Description</p>
+                        @if (Model.User != null)
+                        {
+                            <div>
+                                <label class="card-title">Vlasnik oglasa: @Model.User.Username</label>
+                                <a class="nav-link" asp-controller="Home" asp-action="FollowUser" asp-route-uId="@Model.User.Id">Zaprati ovog oglašavača</a>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>

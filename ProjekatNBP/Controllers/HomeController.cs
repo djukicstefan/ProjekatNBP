@@ -139,7 +139,7 @@ namespace ProjekatNBP.Controllers
                             };
 
                             Ad tmp = adList.Find(x => x.Id == ad.Id);
-                            if(tmp == null)
+                            if (tmp == null)
                                 adRecomendList.Add(ad);
                         });
                     }
@@ -298,19 +298,42 @@ namespace ProjekatNBP.Controllers
             IAsyncSession session = _driver.AsyncSession();
             try
             {
-                result = await session.RunAsync($"MATCH (ad:Ad) WHERE id(ad) = {adId} RETURN ad");
+                result = await session.RunAsync($"MATCH (u:User)-[r:POSTED]-(ad:Ad) WHERE id(ad) = {adId} RETURN u, ad");
                 var ad1 = await result.SingleAsync();
 
                 INode ad2 = ad1["ad"].As<INode>();
+                INode u = ad1["u"].As<INode>();
 
-                ad = new Ad
+                if (userId == (int)u.Id)
                 {
-                    Id = (int)ad2.Id,
-                    Name = ad2.Properties["name"].ToString(),
-                    Category = ad2.Properties["category"].ToString(),
-                    Price = ad2.Properties["price"].ToString(),
-                    Description = ad2.Properties["description"].ToString()
-                };
+                    ad = new Ad
+                    {
+                        Id = (int)ad2.Id,
+                        Name = ad2.Properties["name"].ToString(),
+                        Category = ad2.Properties["category"].ToString(),
+                        Price = ad2.Properties["price"].ToString(),
+                        Description = ad2.Properties["description"].ToString(),
+                        User = null
+                    };
+                }
+                else
+                {
+                    User us = new User
+                    {
+                        Id = (int)u.Id,
+                        Username = u.Properties["username"].ToString()
+                    };
+
+                    ad = new Ad
+                    {
+                        Id = (int)ad2.Id,
+                        Name = ad2.Properties["name"].ToString(),
+                        Category = ad2.Properties["category"].ToString(),
+                        Price = ad2.Properties["price"].ToString(),
+                        Description = ad2.Properties["description"].ToString(),
+                        User = us
+                    };
+                }
 
                 session = _driver.AsyncSession();
                 statementText.Append(@$"MATCH (u:User)-[r:VISITED]-(ad:Ad) 
@@ -403,6 +426,41 @@ namespace ProjekatNBP.Controllers
             }
 
             return RedirectToAction("MineAds", "Home");
+        }
+
+        public async Task<IActionResult> FollowUser(int uId)
+        {
+            int userId = HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
+            if (HttpContext.Session.IsUsernameEmpty() || userId == -1)
+                return RedirectToAction("Login", "Home");
+
+            var statementText = new StringBuilder();
+            IResultCursor result;
+            IAsyncSession session = _driver.AsyncSession();
+            try
+            {
+                statementText.Append(@$"MATCH (u1:User)-[r:FOLLOW]->(u2:User)
+                                        WHERE id(u1) = {userId} AND id(u2) = {uId}
+                                        RETURN u1, r, u2");
+                result = await session.RunAsync(statementText.ToString());
+                var checkIfFollow = await result.ToListAsync();
+
+                if(checkIfFollow.Count == 0)
+                {
+                    statementText.Clear();
+                    session = _driver.AsyncSession();
+                    statementText.Append(@$"MATCH(u1:User) WHERE id(u1)={userId} 
+                                    MATCH (u2:User) WHERE id(u2)={uId} 
+                                    CREATE (u1)-[:FOLLOW]->(u2)");
+                    result = await session.RunAsync(statementText.ToString());
+                }                
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+
+            return RedirectToAction("Index", "Home");
         }
     }
 }
