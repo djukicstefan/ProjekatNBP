@@ -3,8 +3,10 @@
 @model Room[]
 
 @{
-	ViewData["Title"] = "Chat";
-	var room = ViewContext.HttpContext.Request.Query.Count > 0 ? ViewContext.HttpContext.Request.Query["room"].FirstOrDefault() : "";
+    ViewData["Title"] = "Chat";
+    var room = ViewContext.HttpContext.Request.Query.Count > 0 ? ViewContext.HttpContext.Request.Query["room"].FirstOrDefault() : "";
+    var adName = ViewContext.HttpContext.Request.Query.Count > 0 ? ViewContext.HttpContext.Request.Query["adName"].FirstOrDefault() : "";
+    int userId = ViewContext.HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
 }
 
 <div class="container mt-2">
@@ -15,9 +17,16 @@
 			</div>
 			@foreach (var item in Model)
 			{
-				<a class="chat-user-link" asp-controller="Chat" asp-action="Index" asp-route-room="@item.Key">
-					<div class="row border-bottom text-dark room-item"> <h5 class="m-2">@item</h5> </div>
-				</a>
+			<a class="chat-user-link" asp-controller="Chat" asp-action="Index" asp-route-room="@item.Key" asp-route-adName="@item.adName">
+				@if (item.Key == room)
+				{ 
+					<div class="row border-bottom text-light bg-primary room-item"> <h5 class="m-2">@item.participants.FirstOrDefault(x => x.Key != userId).Value - @item.adName </h5> </div>
+				}
+				else
+				{ 
+					<div class="row border-bottom text-dark room-item"> <h5 class="m-2">@item.participants.FirstOrDefault(x => x.Key != userId).Value - @item.adName</h5> </div>
+				}
+			</a>
 			}
 		</div>
 
@@ -25,7 +34,7 @@
 			<div class="container-fluid">
 				<div class="row">
 					<div class="col-12 border-bottom border-dark">
-						<h5 class="m-2"><span id="userName">@room</span>&nbsp;&nbsp;&nbsp;<span>👍</span></h5>
+						<h5 class="m-2"><span id="userName">@adName</span>&nbsp;&nbsp;&nbsp;<span>👍</span></h5>
 					</div>
 				</div>
 

@@ -4,11 +4,21 @@ using ProjekatNBP.Extensions;
 using ProjekatNBP.Session;
 using ProjekatNBP.Models;
 using System.Linq;
+using System.Collections.Generic;
+using System.Text;
+using Neo4j.Driver;
+using System.Threading.Tasks;
 
 namespace ProjekatNBP.Controllers
 {
     public class ChatController : Controller
     {
+        private readonly IDriver _driver;
+
+        public ChatController(IDriver dirver)
+        {
+            _driver = dirver;
+        }
         public IActionResult Index()
         {
             int userId = HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
@@ -30,15 +40,35 @@ namespace ProjekatNBP.Controllers
             return Json(msgs);
         }
 
-        public IActionResult StartConversation(string room)
+        public async Task<IActionResult> StartConversation(string adName,string room)
         {
             int userId = HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
             string[] pom = room.Split(':');
 
-            RedisManager<Room>.SetPush($"users:{userId}:rooms", new Room(room));
-            RedisManager<Room>.SetPush($"users:{pom[2]}:rooms", new Room(room));
+            Dictionary<int, string> participants = new();
 
-            return RedirectToAction("Index", "Chat", new { room=room });
+            var statementText = new StringBuilder();
+            statementText.Append($"MATCH (u:User) WHERE id(u) = {userId} OR id(u) = {pom[2]} RETURN u");
+
+            IResultCursor result;
+            IAsyncSession session = _driver.AsyncSession();
+            try
+            {
+                result = await session.RunAsync(statementText.ToString());
+                var users = await result.ToListAsync();
+                users.ForEach(x => {
+                    INode node = x["u"].As<INode>();
+                    participants[(int)node.Id] = node.Properties["username"].ToString();
+                });
+            }
+            finally { await session.CloseAsync(); }
+
+            Room r = new Room(room, adName, participants);
+
+            RedisManager<Room>.SetPush($"users:{userId}:rooms", r);
+            RedisManager<Room>.SetPush($"users:{pom[2]}:rooms", r);
+
+            return RedirectToAction("Index", "Chat", new { room, adName });
         }
     }
 }
