@@ -234,6 +234,7 @@ namespace ProjekatNBP.Controllers
                 INode user = user1["u"].As<INode>();
                 u = new User
                 {
+                    Id = userId,
                     Username = user.Properties["username"].ToString(),
                     Password = user.Properties["password"].ToString(),
                     City = user.Properties["city"].ToString(),

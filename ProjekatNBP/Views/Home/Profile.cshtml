@@ -5,21 +5,75 @@
 }
 
 <div class="col-7">
-
     <div class="container">
-        <div class="row main-row">           
+        <div class="row main-row">
             <div class="col-4 d-flex justify-content-center">
                 <div class="card card-shadow" style="width: 18rem;">
                     <div class="card-body">
-                        <h5 class="card-subtitle mb-2 text-muted">@Model.Username</h5>
-                        <h5 class="card-subtitle mb-2 text-muted">@Model.Email</h5>
-                        <h5 class="card-subtitle mb-2 text-muted">@Model.City</h5>
-                        <h5 class="card-subtitle mb-2 text-muted">@Model.Phone</h5>
-                        <h5 class="card-subtitle mb-2 text-muted">@Model.Password</h5>
+                        <h5 class="card-subtitle mb-2 text-muted">Korisničko ime: @Model.Username</h5>
+                        <h5 class="card-subtitle mb-2 text-muted">Email: @Model.Email</h5>
+                        <h5 class="card-subtitle mb-2 text-muted">Grad: @Model.City</h5>
+                        <h5 class="card-subtitle mb-2 text-muted">Broj telefona: @Model.Phone</h5>                        
+                        <button class="btn-default" onclick="@($"OpenModalPopUp('{Model.Id}', '{Model.Username}', '{Model.Email}', '{Model.City}', '{Model.Phone}', '{Model.Password}')");">Izmeni podatke</button>
                     </div>
                 </div>
-            </div>              
+            </div>
         </div>
     </div>
-
 </div>
+
+<!--Forma za izmenu profila-->
+<div class="modal fade" id="changeProfile" tabindex="-1" role="dialog" aria-labelledby="changeModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changeModalLongTitle">Izmeni profil</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <input type="hidden" name="id" class="form-control" id="id">
+                    <input type="hidden" name="username" class="form-control" id="username">
+                    <input type="hidden" name="password1" class="form-control" id="password1">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="text" name="email" class="form-control" id="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="city">Grad</label>
+                        <input type="text" name="city" class="form-control" id="city">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Broj telefona</label>
+                        <input type="text" name="phone" class="form-control" id="phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Lozinka</label>
+                        <input type="password" name="password" class="form-control" id="password" placeholder="Šifra">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password-confirm">Ponovite lozinku</label>
+                        <input type="password" name="repassword" class="form-control" id="password-confirm" placeholder="Ponovite lozinku">
+                    </div>
+                    <button type="submit" class="btn btn-danger" asp-action="ChangeData" asp-controller="User">Izmeni</button>
+                    <button type="submit" class="btn btn-primary" asp-action="Profile" asp-controller="Home">Odustani</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function OpenModalPopUp(id, username, email, city, phone, password) {
+        let strId = id.toString();
+        $('#id').val(strId);
+        $('#username').val(username);
+        $('#password1').val(password);
+        $('#email').val(email);
+        $('#city').val(city);
+        $('#phone').val(phone);
+        $("#changeProfile").modal();
+    }
+</script>

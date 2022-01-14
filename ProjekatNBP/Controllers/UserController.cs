@@ -183,6 +183,35 @@ namespace ProjekatNBP.Controllers
             }
             return RedirectToAction("MineAds", "Home");
         }
+
+        public async Task<IActionResult> ChangeData(string id, string username, string email, string city, string phone, string password1, string password, string repassword)
+        {
+            string newPass = password1;
+            if(!string.IsNullOrEmpty(password))
+            {
+                if (password.CompareTo(repassword) == 0)
+                    newPass = password;
+            }
+
+            int userId = int.Parse(id);
+            var statementText = new StringBuilder();
+            IResultCursor result;
+            IAsyncSession session = _driver.AsyncSession();
+            try
+            {
+                statementText.Append(@$"MATCH (u:User) 
+                                    WHERE id(u)={userId}
+                                    SET u = {{ username: '{username}', password: '{newPass}', phone: '{phone}', email: '{email}', city: '{city}' }} ");
+
+                result = await session.RunAsync(statementText.ToString());
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+
+            return RedirectToAction("Profile", "Home");
+        }
         
     }
 }
