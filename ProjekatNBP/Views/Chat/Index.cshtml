@@ -15,7 +15,7 @@
 			</div>
 			@foreach (var item in Model)
 			{
-				<a class="chat-user-link" asp-controller="Home" asp-action="Profile" asp-route-room="@item.Key">
+				<a class="chat-user-link" asp-controller="Chat" asp-action="Index" asp-route-room="@item.Key">
 					<div class="row border-bottom text-dark room-item"> <h5 class="m-2">@item</h5> </div>
 				</a>
 			}

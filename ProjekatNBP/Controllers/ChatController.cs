@@ -15,7 +15,7 @@ namespace ProjekatNBP.Controllers
             if (HttpContext.Session.IsUsernameEmpty() || userId == -1)
                 return RedirectToAction("Login", "Home");
 
-            return View(RedisManager<Room>.GetAll($"users:{userId}:rooms").ToArray());
+            return View(RedisManager<Room>.GetAllFromSet($"users:{userId}:rooms").ToArray());
         }
 
         public IActionResult GetMessages(string room)
@@ -28,6 +28,17 @@ namespace ProjekatNBP.Controllers
                     RedisManager<Message>.Update($"rooms:{room}", i, msgs[i] with { Read = true });
 
             return Json(msgs);
+        }
+
+        public IActionResult StartConversation(string room)
+        {
+            int userId = HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
+            string[] pom = room.Split(':');
+
+            RedisManager<Room>.SetPush($"users:{userId}:rooms", new Room(room));
+            RedisManager<Room>.SetPush($"users:{pom[2]}:rooms", new Room(room));
+
+            return RedirectToAction("Index", "Chat", new { room=room });
         }
     }
 }

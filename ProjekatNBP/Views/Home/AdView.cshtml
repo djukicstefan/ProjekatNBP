@@ -1,7 +1,12 @@
-﻿@model Ad
+﻿@using Microsoft.AspNetCore.Http
+@using ProjekatNBP.Session
+@model Ad
 
 @{
     ViewData["Title"] = "Pregled oglasa";
+
+    int userId = ViewContext.HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
+    string id = userId.ToString();
 }
 
 <div class="col-7">
@@ -20,6 +25,7 @@
                             <div>
                                 <label class="card-title">Vlasnik oglasa: @Model.User.Username</label>
                                 <a class="nav-link" asp-controller="Home" asp-action="FollowUser" asp-route-uId="@Model.User.Id">Zaprati ovog oglašavača</a>
+                                <a class="nav-link" asp-controller="Chat" asp-action="StartConversation" asp-route-room="@id:@Model.Id:@Model.User.Id">Kontaktirajte ovog oglašavača</a>
                             </div>
                         }
                     </div>
@@ -29,3 +35,4 @@
     </div>
 
 </div>
+
