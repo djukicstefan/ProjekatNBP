@@ -4,9 +4,7 @@ namespace ProjekatNBP.Models
 {
     public record Room(string Key)
     {
-        public event Action<Message> MessageReceived;
-
-        public Message[] GetMessages() => RedisManager<Message>.GetAll(Key);
-        public void SendMessage(Message msg) => RedisManager<Message>.Push(msg.From, msg);
+        public Message[] GetMessages() => RedisManager<Message>.GetAll($"rooms:{Key}");
+        public void SendMessage(Message msg) => RedisManager<Message>.Push($"rooms:{Key}", msg);
     }
 }
