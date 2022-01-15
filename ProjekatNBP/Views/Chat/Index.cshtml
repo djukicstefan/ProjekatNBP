@@ -33,42 +33,43 @@
 
         <div class="col-9 p-0 card-shadow bg-light" style="height: 90vh;">
             <div class="container-fluid">
-                <div class="row">
-                    <div class="col-12 border-bottom border-dark">
-                        <h5 class="m-2"><span id="userName">@adName</span>&nbsp;&nbsp;&nbsp;<span id="btnLike" onclick="likeUser(@otherParticipant)">👍</span></h5>
+                @if (otherParticipant != null) {
+                    <div class="row">
+                        <div class="col-12 border-bottom border-dark">
+                            <h5 class="m-2"><span id="userName">@adName</span>&nbsp;&nbsp;&nbsp;<span id="btnLike" onclick="likeUser(@otherParticipant)">👍</span></h5>
+                        </div>
                     </div>
-                </div>
 
-                <div class="row chat-row overflow-auto" style="height: 73vh;">
-                    <div class="container-fluid" id="messages-container">
-                        @{
-                            if ((new Room(room).GetMessages() is Message[] messages) && messages is not null)
-                                foreach (var msg in messages)
-                                {
-                                    <div class="row m-4 d-flex @(msg.From == ViewContext.HttpContext.Session.GetInt32(SessionKeys.UserId) ? "my-message" : "")">
-                                        <div class="card bg-primary" style="width: 30rem;">
-                                            <div class="card-body">
-                                                <h5 class="card-title">@msg.Username</h5>
-                                                <p class="card-text">@msg.Text</p>
+                    <div class="row chat-row overflow-auto" style="height: 73vh;">
+                        <div class="container-fluid" id="messages-container">
+                            @{
+                                if ((new Room(room).GetMessages() is Message[] messages) && messages is not null)
+                                    foreach (var msg in messages) {
+                                        <div class="row m-4 d-flex @(msg.From == ViewContext.HttpContext.Session.GetInt32(SessionKeys.UserId) ? "my-message" : "")">
+                                            <div class="card bg-primary" style="width: 30rem;">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">@msg.Username</h5>
+                                                    <p class="card-text">@msg.Text</p>
+                                                </div>
+                                                <span class="text-right mr-3 mb-2 font-italic">@($"{(new DateTime(1970, 1, 1).AddMilliseconds(msg.Timestamp)):dd.MM.yyyy - hh:mm:ss}")</span>
                                             </div>
-                                            <span class="text-right mr-3 mb-2 font-italic">@($"{(new DateTime(1970, 1, 1).AddMilliseconds(msg.Timestamp)):dd.MM.yyyy - hh:mm:ss}")</span>
                                         </div>
-                                    </div>
-                                }
-                        }
+                                    }
+                            }
+                        </div>
                     </div>
-                </div>
 
-                <div class="row">
-                    <div class="col-12 border-top border-dark">
-                        <div class="input-group mt-3">
-                            <input type="text" id="message" class="form-control" placeholder="Poruka" aria-label="Poruka" aria-describedby="basic-addon2" style="height:50px">
-                            <div class="input-group-append">
-                                <button id="submitMessage" class="btn btn-success" type="button">Pošalji</button>
+                    <div class="row">
+                        <div class="col-12 border-top border-dark">
+                            <div class="input-group mt-3">
+                                <input type="text" id="message" class="form-control" placeholder="Poruka" aria-label="Poruka" aria-describedby="basic-addon2" style="height:50px">
+                                <div class="input-group-append">
+                                    <button id="submitMessage" class="btn btn-success" type="button">Pošalji</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                }
             </div>
         </div>
     </div>
