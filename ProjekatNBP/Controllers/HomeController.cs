@@ -319,11 +319,25 @@ namespace ProjekatNBP.Controllers
                 }
                 else
                 {
+                    session = _driver.AsyncSession();
+                    result = await session.RunAsync($"MATCH (u1:User)<-[r:FOLLOW]-(u2:User) WHERE id(u1) = {(int)u.Id} RETURN id(u2)");
+                    var followersId = await result.ToListAsync();                    
+
                     User us = new User
                     {
                         Id = (int)u.Id,
                         Username = u.Properties["username"].ToString()
                     };
+
+                    if(followersId.Count > 0)
+                    {
+                        us.Followers = new List<int>();
+                        followersId.ForEach(x => {
+                            int id = x["id(u2)"].As<int>();
+                            us.Followers.Add(id);
+                        });
+                        
+                    }
 
                     ad = new Ad
                     {
@@ -458,6 +472,30 @@ namespace ProjekatNBP.Controllers
                     
                     RedisManager<int>.Push($"users:{uId}:followers", userId);
                 }
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        public async Task<IActionResult> UnfollowUser(int uId)
+        {
+            int userId = HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
+            if (HttpContext.Session.IsUsernameEmpty() || userId == -1)
+                return RedirectToAction("Login", "Home");
+
+            var statementText = new StringBuilder();
+            IResultCursor result;
+            IAsyncSession session = _driver.AsyncSession();
+            try
+            {
+                statementText.Append(@$"MATCH (u1:User)-[r:FOLLOW]->(u2:User)
+                                        WHERE id(u1) = {userId} AND id(u2) = {uId}
+                                        DELETE r");
+                result = await session.RunAsync(statementText.ToString());                
             }
             finally
             {

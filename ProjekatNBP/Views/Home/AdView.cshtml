@@ -7,6 +7,17 @@
 
     int userId = ViewContext.HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
     string id = userId.ToString();
+
+    bool found;
+
+    if (Model.User != null && Model.User.Followers != null)
+    {
+        found = Model.User.Followers.Contains(userId);
+    }
+    else
+    {
+        found = false;
+    }
 }
 
 <div class="col-7">
@@ -24,7 +35,14 @@
                         {
                             <div>
                                 <label class="card-title">Vlasnik oglasa: @Model.User.Username</label>
-                                <a class="nav-link" asp-controller="Home" asp-action="FollowUser" asp-route-uId="@Model.User.Id">Zaprati ovog oglašavača</a>
+                                @if (!found)
+                                {
+                                    <a class="nav-link" asp-controller="Home" asp-action="FollowUser" asp-route-uId="@Model.User.Id">Zaprati ovog oglašavača</a>
+                                }
+                                else
+                                {
+                                    <a class="nav-link" asp-controller="Home" asp-action="UnfollowUser" asp-route-uId="@Model.User.Id">Otprati ovog oglašavača</a>
+                                }
                                 <a class="nav-link" asp-controller="Chat" asp-action="StartConversation" asp-route-adName="@Model.Name" asp-route-room="@id:@Model.Id:@Model.User.Id">Kontaktirajte ovog oglašavača</a>
                             </div>
                         }

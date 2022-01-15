@@ -1,4 +1,6 @@
-﻿namespace ProjekatNBP.Models
+﻿using System.Collections.Generic;
+
+namespace ProjekatNBP.Models
 {
 	public class User
     {
@@ -8,5 +10,6 @@
         public string Phone { get; set; }
         public string Email { get; set; }
         public string City { get; set; }
+        public List<int> Followers { get; set; }
     }
 }
