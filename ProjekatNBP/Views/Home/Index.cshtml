@@ -3,322 +3,260 @@
 @model Ads
 
 @{
-	ViewData["Title"] = "Početna";
-	int userId = ViewContext.HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
+    ViewData["Title"] = "Početna";
+    int userId = ViewContext.HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
+    bool isLoged = userId >= 0;
 }
 
 <div class="container-fluid">
-	<div class="row">
-		<div class="col-2  category-col">
-			<div class="card card-shadow">
-				<div class="card-body">
-					<h5 class="card-title">Kategorije:</h5>
-					<ul class="list-group">
-						@foreach (var item in Model.CategoryList) {
-							<li class="list-group-item d-flex justify-content-between align-items-center">
-								<a asp-controller="Home" asp-action="Index" asp-route-category="@item.Name">@item.Name</a>
-								<span class="badge badge-primary badge-pill">@item.Ads.Count</span>
-							</li>
-						}
-					</ul>
-				</div>
-			</div>
-		</div>
+    <div class="row">
+        <div class="col-2  category-col">
+            <div class="card card-shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Kategorije:</h5>
+                    <ul class="list-group">
+                        @if (Model.CategoryList.Count > 0)
+                            foreach (var item in Model.CategoryList)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a asp-controller="Home" asp-action="Index" asp-route-category="@item.Name">@item.Name</a>
+                                    <span class="badge badge-primary badge-pill">@item.Ads.Count</span>
+                                </li>
+                            }
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-		<div class="col-7">
+        <div class="col-7">
 
-			<div class="container">
-				<div class="row main-row">
-					@foreach (var item in Model.CategoryList) {
-						string category = ViewContext.HttpContext.Request.Query.Count > 0 ? ViewContext.HttpContext.Request.Query["category"].FirstOrDefault() : "";
-						var items = string.IsNullOrEmpty(category) ? item.Ads : item.Ads.Where(x => x.Category.Equals(category));
-						@foreach (var ad in items) {
-							<div class="col-4 d-flex justify-content-center">
-								<div class="card card-shadow" style="width: 18rem;">
-									<div class="card-body">
-										<h5 class="card-title">@ad.Name</h5>
-										<h6 class="card-subtitle mb-2 text-muted">@ad.Category</h6>
-										<h6 class="card-subtitle mb-2 text-muted">Cena: @ad.Price</h6>
-										<p class="card-text">@ad.Description</p>
-										<a asp-controller="Home" asp-action="AdView" asp-route-adId="@ad.Id" class="card-link">Otvori</a>
-										<a asp-controller="User" asp-action="SaveAd" asp-route-adId="@ad.Id" class="card-link">Sacuvaj</a>
-									</div>
-								</div>
-							</div>
-						}
-					}
-				</div>
-			</div>
+            <div class="container">
+                <div class="row main-row">
+                    @if (Model.CategoryList.Count > 0)
+                        foreach (var item in Model.CategoryList)
+                        {
+                            string category = ViewContext.HttpContext.Request.Query.Count > 0 ? ViewContext.HttpContext.Request.Query["category"].FirstOrDefault() : "";
+                            var items = string.IsNullOrEmpty(category) ? item.Ads : item.Ads.Where(x => x.Category.Equals(category));
+                            @foreach (var ad in items)
+                            {
+                                <div class="col-4 d-flex justify-content-center">
+                                    <div class="card card-shadow" style="width: 18rem;">
+                                        <div class="card-body">
+                                            <h5 class="card-title">@ad.Name</h5>
+                                            <h6 class="card-subtitle mb-2 text-muted">@ad.Category</h6>
+                                            <h6 class="card-subtitle mb-2 text-muted">Cena: @ad.Price</h6>
+                                            <p class="card-text">@ad.Description</p>
+                                            @if (isLoged)
+                                            {
+                                                <a asp-controller="Home" asp-action="AdView" asp-route-adId="@ad.Id" class="card-link">Otvori</a>
+                                                <a asp-controller="User" asp-action="SaveAd" asp-route-adId="@ad.Id" class="card-link">Sacuvaj</a>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                </div>
+            </div>
 
-		</div>
+        </div>
 
-		<div class="col-3 leaderboard-col">
-			<div class="card card-shadow">
-				<div class="card-body">
-					<h5 class="card-title">Leaderboard</h5>
-					<table class="table">
-						<thead>
-							<tr>
-								<th scope="col">#</th>
-								<th scope="col">Ime</th>
-								<th scope="col">Ocene</th>
-							</tr>
-						</thead>
-						<tbody>
-							@{
-								int i = 0;
-								foreach (var item in Model.Leaderboard) {
-									<tr>
-										<th scope="row">@(++i)</th>
-										<td>@item.userInfo.Username</td>
-										<td class="text-success">@item.score</td>
-									</tr>
-								}
-							}
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-	</div>
+        <div class="col-3 leaderboard-col">
+            <div class="card card-shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Top prodavci</h5>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Ime</th>
+                                <th scope="col">Ocene</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int i = 0;
+                                foreach (var item in Model.Leaderboard)
+                                {
+                                    <tr>
+                                        <th scope="row">@(++i)</th>
+                                        <td><a asp-controller="Home" asp-action="UserAds" asp-route-idUser="@item.userInfo.Id">@item.userInfo.Username</a></td>
+                                        <td class="text-success">@item.score</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (isLoged)
+    {
+        <div class="row m-2 pt-5">
+            <div class="col-12 mb-3 text-light">
+                <h3>Nedavno posećeni oglasi:</h3>
+            </div>
+            @if (Model.AdList != null)
+            {
+                @foreach (var ad in Model.AdList)
+                {
+                    <div class="col-2 d-flex justify-content-center">
+                        <div class="card card-shadow" style="width: 18rem;">
+                            <div class="card-body">
+                                <h5 class="card-title">@ad.Name</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">@ad.Category</h6>
+                                <h6 class="card-subtitle mb-2 text-muted">Cena: @ad.Price</h6>
+                                <p class="card-text">@ad.Description</p>
+                                <a asp-controller="Home" asp-action="AdView" asp-route-adId="@ad.Id" class="card-link">Otvori</a>
+                                <a asp-controller="User" asp-action="SaveAd" asp-route-adId="@ad.Id" class="card-link">Sacuvaj</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p>Niste posetili ni jedan oglas.</p>
+            }
+        </div>
 
-	<div class="row m-2 pt-5">
-		<div class="col-12 mb-3 text-light">
-			<h3>Nedavno posećeni oglasi:</h3>
-		</div>
-		@if (Model.AdList != null) {
-			@foreach (var ad in Model.AdList) {
-				<div class="col-2 d-flex justify-content-center">
-					<div class="card card-shadow" style="width: 18rem;">
-						<div class="card-body">
-							<h5 class="card-title">@ad.Name</h5>
-							<h6 class="card-subtitle mb-2 text-muted">@ad.Category</h6>
-							<h6 class="card-subtitle mb-2 text-muted">Cena: @ad.Price</h6>
-							<p class="card-text">@ad.Description</p>
-							<a asp-controller="Home" asp-action="AdView" asp-route-adId="@ad.Id" class="card-link">Otvori</a>
-							<a asp-controller="User" asp-action="SaveAd" asp-route-adId="@ad.Id" class="card-link">Sacuvaj</a>
-						</div>
-					</div>
-				</div>
-			}
-		} else {
-			<p>Niste posetili ni jedan oglas.</p>
-		}
-	</div>
-
-	<div class="row m-2 pt-5">
-		<div class="col-12 mb-3 text-light">
-			<h3>Preporučeno za vas:</h3>
-		</div>
-		@if (Model.AdRecomendList != null) {
-			@foreach (var ad in Model.AdRecomendList) {
-				<div class="col-2 d-flex justify-content-center">
-					<div class="card card-shadow" style="width: 18rem;">
-						<div class="card-body">
-							<h5 class="card-title">@ad.Name</h5>
-							<h6 class="card-subtitle mb-2 text-muted">@ad.Category</h6>
-							<h6 class="card-subtitle mb-2 text-muted">Cena: @ad.Price</h6>
-							<p class="card-text">@ad.Description</p>
-							<a asp-controller="Home" asp-action="AdView" asp-route-adId="@ad.Id" class="card-link">Otvori</a>
-							<a asp-controller="User" asp-action="SaveAd" asp-route-adId="@ad.Id" class="card-link">Sacuvaj</a>
-						</div>
-					</div>
-				</div>
-			}
-		} else {
-			<p>Još nemamo dovoljno podataka o vama</p>
-		}
-	</div>
+        <div class="row m-2 pt-5">
+            <div class="col-12 mb-3 text-light">
+                <h3>Preporučeno za vas:</h3>
+            </div>
+            @if (Model.AdRecomendList != null)
+            {
+                @foreach (var ad in Model.AdRecomendList)
+                {
+                    <div class="col-2 d-flex justify-content-center">
+                        <div class="card card-shadow" style="width: 18rem;">
+                            <div class="card-body">
+                                <h5 class="card-title">@ad.Name</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">@ad.Category</h6>
+                                <h6 class="card-subtitle mb-2 text-muted">Cena: @ad.Price</h6>
+                                <p class="card-text">@ad.Description</p>
+                                <a asp-controller="Home" asp-action="AdView" asp-route-adId="@ad.Id" class="card-link">Otvori</a>
+                                <a asp-controller="User" asp-action="SaveAd" asp-route-adId="@ad.Id" class="card-link">Sacuvaj</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p>Još nemamo dovoljno podataka o vama</p>
+            }
+        </div>
+    }
 </div>
 
+@if (isLoged)
+{
+    <button class="add-ad-btn btn btn-primary" data-toggle="modal" data-target="#adModal">Postavi oglas</button>
+}
 
 <!-- Forma za prijavu -->
 <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalTitle" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="loginModalLongTitle">Prijavi se</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-				<form method="post" asp-action="Login" asp-controller="User">
-					<div class="form-group">
-						<label for="username">Korisničko ime</label>
-						<input type="text" name="username" class="form-control" id="username" placeholder="Korisničko ime">
-					</div>
-					<div class="form-group">
-						<label for="password">Lozinka</label>
-						<input type="password" name="password" class="form-control" id="password" placeholder="Lozinka">
-					</div>
-					<button type="submit" class="btn btn-primary">Prijavi se</button>
-				</form>
-			</div>
-		</div>
-	</div>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginModalLongTitle">Prijavi se</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-action="Login" asp-controller="User">
+                    <div class="form-group">
+                        <label for="username">Korisničko ime</label>
+                        <input type="text" name="username" class="form-control" id="username" placeholder="Korisničko ime">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Lozinka</label>
+                        <input type="password" name="password" class="form-control" id="password" placeholder="Lozinka">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Prijavi se</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Forma za registraciju -->
 <div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="registerModalTitle" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="registerModalLongTitle">Registruj se</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-				<form asp-action="Register" asp-controller="User">
-					<div class="form-group">
-						<label for="username">Korisničko ime</label>
-						<input type="text" name="username" class="form-control" id="username" placeholder="Korisničko ime">
-					</div>
-					<div class="form-group">
-						<label for="email">Email adresa</label>
-						<input type="text" name="email" class="form-control" id="email" placeholder="Email adresa">
-					</div>
-					<div class="form-group">
-						<label for="city">Grad</label>
-						<input type="text" name="city" class="form-control" id="city" placeholder="Grad">
-					</div>
-					<div class="form-group">
-						<label for="phone">Broj telefona</label>
-						<input type="text" name="phone" class="form-control" id="phone" placeholder="Broj telefona">
-					</div>
-					<div class="form-group">
-						<label for="password">Lozinka</label>
-						<input type="password" name="password" class="form-control" id="password" placeholder="Šifra">
-					</div>
-					<div class="form-group">
-						<label for="register-password-confirm">Ponovite lozinku</label>
-						<input type="password" class="form-control" id="password-confirm" placeholder="Ponovite lozinku">
-					</div>
-					<button type="submit" class="btn btn-primary">Prijavi se</button>
-				</form>
-			</div>
-		</div>
-	</div>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registerModalLongTitle">Registruj se</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Register" asp-controller="User">
+                    <div class="form-group">
+                        <label for="username">Korisničko ime</label>
+                        <input type="text" name="username" class="form-control" id="username" placeholder="Korisničko ime">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email adresa</label>
+                        <input type="text" name="email" class="form-control" id="email" placeholder="Email adresa">
+                    </div>
+                    <div class="form-group">
+                        <label for="city">Grad</label>
+                        <input type="text" name="city" class="form-control" id="city" placeholder="Grad">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Broj telefona</label>
+                        <input type="text" name="phone" class="form-control" id="phone" placeholder="Broj telefona">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Lozinka</label>
+                        <input type="password" name="password" class="form-control" id="password" placeholder="Šifra">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password-confirm">Ponovite lozinku</label>
+                        <input type="password" class="form-control" id="password-confirm" placeholder="Ponovite lozinku">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Prijavi se</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Forma za oglas -->
 <div class="modal fade" id="adModal" tabindex="-1" role="dialog" aria-labelledby="adModalTitle" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="adModalLongTitle">Postavi oglas</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-				<form method="post" asp-action="PlaceAd" asp-controller="User">
-					<div class="form-group">
-						<label for="name">Naziv</label>
-						<input type="text" name="name" class="form-control" id="ad-name" placeholder="Naziv">
-					</div>
-					<div class="form-group">
-						<label for="category">Kategorija</label>
-						<input type="text" name="category" class="form-control" id="category" placeholder="Kategorija">
-					</div>
-					<div class="form-group">
-						<label for="price">Cena</label>
-						<input type="text" name="price" class="form-control" id="price" placeholder="Cena">
-					</div>
-					<div class="form-group">
-						<label for="description">Opis navedenog oglasa</label>
-						<input type="text" name="description" class="form-control" id="description" placeholder="Opis">
-					</div>
-					<button id="submit-ad" type="submit" class="btn btn-primary">Postavi oglas</button>
-				</form>
-			</div>
-		</div>
-	</div>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="adModalLongTitle">Postavi oglas</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-action="PlaceAd" asp-controller="User">
+                    <div class="form-group">
+                        <label for="name">Naziv</label>
+                        <input type="text" name="name" class="form-control" id="ad-name" placeholder="Naziv">
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Kategorija</label>
+                        <input type="text" name="category" class="form-control" id="category" placeholder="Kategorija">
+                    </div>
+                    <div class="form-group">
+                        <label for="price">Cena</label>
+                        <input type="text" name="price" class="form-control" id="price" placeholder="Cena">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Opis navedenog oglasa</label>
+                        <input type="text" name="description" class="form-control" id="description" placeholder="Opis">
+                    </div>
+                    <button id="submit-ad" type="submit" class="btn btn-primary">Postavi oglas</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
-
-
-<div class="modal fade" id="notificationModal" tabindex="-1" role="dialog" aria-labelledby="notificationModalTitle" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="notificationModalLongTitle">Notifikacije</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-				<div id="notification-container" class="container">
-					@{
-						int id = 0;
-						@foreach (string notification in RedisManager<string>.GetAll($"users:{userId}:notifications")) {
-							string[] temp = notification.Split('|');
-							if (temp.Length < 2)
-								continue;
-
-							<div id="not-@id" class="row">
-								<div class="col-8"><h6>@temp[0]</h6></div>
-								<div class="col-2"><a href="#" onclick="RemoveItem('@($"users:{userId}:notifications")', '@notification', '#not-@(id++)')">X</a></div>
-								<div class="col-2"><a asp-controller="Home" asp-action="AdView" asp-route-adId='@(int.Parse(temp[1]))'>Otvori</a></div>
-							</div>
-						}
-					}
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-
-<script>
-	var conn = new signalR.HubConnectionBuilder().withUrl("/hub/Ads").build()
-
-	conn.start().then(() => {
-
-	}).catch((err) => {
-		console.log(err)
-	});
-
-	conn.on('NotificationReceived', (obj) => {
-		const { followers, adId, adName, userId, userName } = obj;
-
-		if (!followers.find(x => '@userId'))
-			return
-		const notification = `${userName} je postavio novi oglas - ${adName}`
-		const url = `@(Url.Action("AdView", "Home"))?adId='${parseInt(adId)}`;
-		const item = `<div id="not-@id" class="row">
-						  <div class="col-8"><h6></h6>${notification}</div>
-						  <div class="col-2"><a href="#" onclick="RemoveItem('@($"users:{userId}:notifications")', '${notification}|${adId}', '#not-@(id++)')">X</a></div>
-						  <div class="col-2"><a href=${url}> Otvori </a></div>
-					   </div>`
-		$('#notification-container').append(item);
-		$('#notification-bell').attr('src', '/img/bell_notification.png')
-	});
-
-	$('#submit-ad').click(() => {
-		conn.invoke("AdPosted", $('#ad-name').val()).catch(function (err) {
-			return console.error(err.toString());
-		})
-
-		conn.invoke("Subscribe", 'user:0:followers').catch(function (err) {
-			return console.error(err.toString());
-		});
-	});
-
-	function RemoveItem(path, item, id)
-	{
-		$.ajax({
-			type: "DELETE",
-			url: '@Url.Action("RemoveNotification", "Home")',
-			data: {path, item},
-			success: () => {
-				$(id).remove();
-				if (document.getElementById('notification-container').childElementCount == 0)
-					document.getElementById('notification-bell').src = '/img/bell.png';
-			},
-			error: () => {
-				alert("Something went wrong");
-			}
-		});
-	}
-</script>

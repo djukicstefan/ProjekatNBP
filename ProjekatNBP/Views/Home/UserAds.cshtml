@@ -1,0 +1,28 @@
+﻿@model List<Ad>
+
+@{
+    ViewData["Title"] = "Oglasi";
+}
+
+<div class="container">
+    <div class="row main-row d-flex justify-content-center">
+        @if (Model.Count > 0)
+            foreach (var ad in Model)
+            {
+                <div class="col-3 mt-2 d-flex justify-content-center">
+                    <div class="card card-shadow" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">@ad.Name</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Kategorija: @ad.Category</h6>
+                            <h6 class="card-subtitle mb-2 text-muted">Cena: @ad.Price</h6>
+                            <p class="card-text">Opis: @ad.Description</p>
+                            <a asp-controller="Home" asp-action="AdView" asp-route-adId="@ad.Id" class="card-link">Otvori</a>
+                        </div>
+                    </div>
+                </div>
+            }           
+    </div>
+</div>
+
+
+

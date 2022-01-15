@@ -374,5 +374,42 @@ namespace ProjekatNBP.Controllers {
 
         public IActionResult RemoveNotification(string path, string item)
             => RedisManager<string>.DeleteItem(path, item) ? Ok() : BadRequest();
+
+        public async Task<IActionResult> UserAds(int idUser)
+        {
+            List<Ad> adList = null;
+            IResultCursor result;
+            IAsyncSession session = _driver.AsyncSession();
+            try
+            {                
+                result = await session.RunAsync($"MATCH (n:User)-[r:POSTED]->(ad:Ad) WHERE id(n) = {idUser} RETURN ad");
+                var list = await result.ToListAsync();
+
+                if(list.Count > 0)
+                {
+                    User u = new User { Id = idUser };
+                    adList = new List<Ad>();
+                    list.ForEach(x => {
+                        INode ad = x["ad"].As<INode>();
+
+                        adList.Add(new Ad
+                        {
+                            Id = (int)ad.Id,
+                            Name = ad.Properties["name"].ToString(),
+                            Category = ad.Properties["category"].ToString(),
+                            Price = ad.Properties["price"].ToString(),
+                            Description = ad.Properties["description"].ToString(),
+                            User = u
+                        });
+                    });
+                }
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+
+            return View(adList);
+        }
     }
 }
