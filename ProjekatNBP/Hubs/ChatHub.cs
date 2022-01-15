@@ -9,11 +9,8 @@ using System;
 
 namespace ProjekatNBP.Hubs
 {
-    public class ChatHub : Hub
+    public class ChatHub : NBPHub
     {
-        public int? UserId => Context.GetHttpContext().Session.GetInt32(SessionKeys.UserId);
-        public string UserName => Context.GetHttpContext().Session.GetString(SessionKeys.Username);
-
         public async Task SendMessage(string toRoom, string message)
         {
             var msg = new Message(UserId.Value, UserName, message, (long)(DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds);

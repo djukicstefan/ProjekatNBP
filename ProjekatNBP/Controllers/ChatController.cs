@@ -19,6 +19,7 @@ namespace ProjekatNBP.Controllers
         {
             _driver = dirver;
         }
+
         public IActionResult Index()
         {
             int userId = HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;

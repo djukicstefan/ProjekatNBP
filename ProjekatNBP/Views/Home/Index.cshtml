@@ -1,7 +1,10 @@
-﻿@model Ads
+﻿@using Microsoft.AspNetCore.Http
+@using ProjekatNBP.Session
+@model Ads
 
 @{
     ViewData["Title"] = "Početna";
+    int userId = ViewContext.HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
 }
 
 <div class="container-fluid">
@@ -231,7 +234,7 @@
                 <form method="post" asp-action="PlaceAd" asp-controller="User">
                     <div class="form-group">
                         <label for="name">Naziv</label>
-                        <input type="text" name="name" class="form-control" id="name" placeholder="Naziv">
+                        <input type="text" name="name" class="form-control" id="ad-name" placeholder="Naziv">
                     </div>
                     <div class="form-group">
                         <label for="category">Kategorija</label>
@@ -245,9 +248,73 @@
                         <label for="description">Opis navedenog oglasa</label>
                         <input type="text" name="description" class="form-control" id="description" placeholder="Opis">
                     </div>
-                    <button type="submit" class="btn btn-primary">Postavi oglas</button>
+                    <button id="submit-ad" type="submit" class="btn btn-primary">Postavi oglas</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+
+<div class="modal fade" id="notificationModal" tabindex="-1" role="dialog" aria-labelledby="notificationModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notificationModalLongTitle">Notifikacije</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    @{
+                        int id = 0;
+                    }
+                    @foreach (string notification in RedisManager<string>.GetAll($"users:{userId}:notifications"))
+                    {
+                    <div id="not-@id" class="row">
+                        <div class="col-10"><h6>@notification</h6></div>
+                        <div class="col-2"><a href="#" onclick="RemoveItem('@($"users:{userId}:notifications")', '@notification', '#not-@id++')">X</a></div>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    var conn = new signalR.HubConnectionBuilder().withUrl("/hub/Ads").build()
+
+    conn.start().then(() => {
+
+    }).catch((err) => {
+        console.log(err)
+    });
+
+    conn.on("AdPosted", (AdName, UserName) => {
+        document.getElementById('ad-badge').style.display = 'inline';
+    });
+
+    $("#submit-ad").click(() => {
+        conn.invoke("AdPosted", $('#ad-name').val()).catch(function (err) {
+            return console.error(err.toString());
+        })
+    });
+
+    function RemoveItem(path, item, id)
+    {
+        $.ajax({
+            type: "DELETE",
+            url: '@Url.Action("RemoveNotification", "Home")',
+            data: {path, item},
+            success: () => {
+                $(id).remove();
+            },
+            error: () => {
+                alert("Something went wrong");
+            }
+        });
+    }
+</script>

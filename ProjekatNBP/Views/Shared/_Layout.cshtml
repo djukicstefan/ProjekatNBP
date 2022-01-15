@@ -42,6 +42,9 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Chat" asp-action="Index">Poruke <span class="badge badge-danger badge-pill"></span></a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Chat" asp-action="Index">Praćeni oglasi <span id="ad-badge" class="badge badge-danger badge-pill" style="display: none;">&nbsp;</span></a>
+                        </li>
                     }
                 </ul>
 
@@ -54,18 +57,23 @@
                         <li class="nav-item">
                             <a class="nav-link" href="#" data-toggle="modal" data-target="#registerModal">Registruj se</a>
                         </li>
-
                     }
                     else
                     {
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Profile">Profil</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-toggle="modal" data-target="#notificationModal">Zvonce</a>
+                        </li>
                     }
                 </ul>
             </div>
         </nav>
     </header>
+
+    <script src="~/js/signalr/dist/browser/signalr.js"></script>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
 
     @RenderBody()
 

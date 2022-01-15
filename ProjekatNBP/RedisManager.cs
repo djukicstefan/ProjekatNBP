@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
-using StackExchange.Redis;
-using System;
+﻿using StackExchange.Redis;
+using Newtonsoft.Json;
 using System.Linq;
+using System;
 
 namespace ProjekatNBP
 {
@@ -15,11 +15,11 @@ namespace ProjekatNBP
         {
             redis = ConnectionMultiplexer.Connect(new ConfigurationOptions { EndPoints = { "localhost:6379" } });
             Database = redis.GetDatabase();
-            redis.GetSubscriber();
+            Subscriber = redis.GetSubscriber();
         }
     }
 
-    public static class RedisManager<T> where T : class
+    public static class RedisManager<T>
     {
         private static T Deserialize(RedisValue data) => JsonConvert.DeserializeObject<T>(data);
         private static string Serialize(T data) => JsonConvert.SerializeObject(data);
@@ -44,6 +44,9 @@ namespace ProjekatNBP
 
         public static T GetByIndex(string path, int index)
             => Deserialize(RedisManager.Database.ListGetByIndex(path, index));
+
+        public static bool DeleteItem(string path, T item) 
+            => RedisManager.Database.ListRemove(path, Serialize(item)) > 0;
 
         public static void Subscribe(string path, Action<string, T> onPub)
             => RedisManager.Subscriber.Subscribe(path, (x, y) => onPub(x, Deserialize(y)));

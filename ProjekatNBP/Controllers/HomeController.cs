@@ -71,7 +71,7 @@ namespace ProjekatNBP.Controllers
 
 
                 int userId = HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
-                if (userId > 0)
+                if (userId >= 0)
                 {
                     adList = new List<Ad>();
                     StringBuilder statementText = new StringBuilder();
@@ -455,6 +455,8 @@ namespace ProjekatNBP.Controllers
                                     MATCH (u2:User) WHERE id(u2)={uId} 
                                     CREATE (u1)-[:FOLLOW]->(u2)");
                     result = await session.RunAsync(statementText.ToString());
+                    
+                    RedisManager<int>.Push($"users:{uId}:followers", userId);
                 }
             }
             finally
@@ -464,5 +466,8 @@ namespace ProjekatNBP.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+
+        public IActionResult RemoveNotification(string path, string item) 
+            => RedisManager<string>.DeleteItem(path, item) ? Ok() : BadRequest();
     }
 }

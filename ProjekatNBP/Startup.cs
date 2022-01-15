@@ -1,17 +1,17 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Neo4j.Driver;
 using ProjekatNBP.Hubs;
+using Neo4j.Driver;
 using System;
-using Microsoft.AspNetCore.SignalR.Redis;
 
 namespace ProjekatNBP
 {
     public class Startup
     {
+        public static IDriver driver;
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -26,8 +26,9 @@ namespace ProjekatNBP
             services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromDays(1);
-            });            
-            services.AddSingleton(GraphDatabase.Driver("bolt://localhost:7687", AuthTokens.Basic("neo4j", "17101")));
+            });
+            driver = GraphDatabase.Driver("bolt://localhost:7687", AuthTokens.Basic("neo4j", "17101"));
+            services.AddSingleton(driver);
             services.AddSignalR().AddRedis("localhost:6379");
         }
 
@@ -53,7 +54,7 @@ namespace ProjekatNBP
             app.UseRouting();
 
             app.UseAuthorization();
-
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
@@ -61,6 +62,7 @@ namespace ProjekatNBP
                     pattern: "{controller=Home}/{action=Index}");
 
                 endpoints.MapHub<ChatHub>("/hub/Chat");
+                endpoints.MapHub<AdsHub>("/hub/Ads");
             });
         }
     }
