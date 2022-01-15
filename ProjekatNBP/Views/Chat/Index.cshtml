@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Http
+@using ProjekatNBP.Extensions
 @using ProjekatNBP.Session
 @model Room[]
 
@@ -6,8 +7,8 @@
     ViewData["Title"] = "Chat";
     var room = ViewContext.HttpContext.Request.Query.Count > 0 ? ViewContext.HttpContext.Request.Query["room"].FirstOrDefault() : "";
     var adName = ViewContext.HttpContext.Request.Query.Count > 0 ? ViewContext.HttpContext.Request.Query["adName"].FirstOrDefault() : "";
-    int userId = ViewContext.HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
-    var otherParticipant = @Model.FirstOrDefault(x => x.Key == room)?.participants?.FirstOrDefault(x => x.Key != userId).Key;
+    int userId = ViewContext.HttpContext.Session.GetUserId();
+    var otherParticipant = @Model.FirstOrDefault(x => x.Key == room)?.Participants?.FirstOrDefault(x => x.Key != userId).Key;
 }
 
 <div class="container mt-2">
@@ -18,15 +19,8 @@
             </div>
             @foreach (var item in Model)
             {
-                <a class="chat-user-link" asp-controller="Chat" asp-action="Index" asp-route-room="@item.Key" asp-route-adName="@item.adName">
-                    @if (item.Key == room)
-                    {
-                        <div class="row border-bottom text-light bg-primary room-item"> <h5 class="m-2">@item.participants?.FirstOrDefault(x => x.Key != userId).Value - @item.adName </h5> </div>
-                    }
-                    else
-                    {
-                        <div class="row border-bottom text-dark room-item"> <h5 class="m-2">@item.participants?.FirstOrDefault(x => x.Key != userId).Value - @item.adName</h5> </div>
-                    }
+                <a class="chat-user-link" asp-controller="Chat" asp-action="Index" asp-route-room="@item.Key" asp-route-adName="@item.AdName">
+                    <div class="row border-bottom @(item.Key == room ? "text-light bg-primary" : "text-dark") room-item"> <h5 class="m-2">@item.Participants?.FirstOrDefault(x => x.Key != userId).Value - @item.AdName </h5> </div>
                 </a>
             }
         </div>
@@ -43,7 +37,7 @@
                     <div class="row chat-row overflow-auto" style="height: 73vh;">
                         <div class="container-fluid" id="messages-container">
                             @{
-                                if ((new Room(room).GetMessages() is Message[] messages) && messages is not null)
+                                if ((Room.GetMessages(room) is Message[] messages) && messages is not null)
                                     foreach (var msg in messages) {
                                         <div class="row m-4 d-flex @(msg.From == ViewContext.HttpContext.Session.GetInt32(SessionKeys.UserId) ? "my-message" : "")">
                                             <div class="card bg-primary" style="width: 30rem;">

@@ -1,17 +1,19 @@
 ﻿using Microsoft.AspNetCore.Http;
 using ProjekatNBP.Session;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace ProjekatNBP.Extensions
-{
+namespace ProjekatNBP.Extensions {
     public static class SessionExtensions
     {
-        public static bool IsUsernameEmpty(this ISession session)
-        {
-            return string.IsNullOrEmpty(session.GetString(SessionKeys.Username));
-        }
+        public static bool IsUsernameEmpty(this ISession session) 
+            => string.IsNullOrEmpty(GetUsername(session));
+
+        public static bool IsLoggedIn(this ISession session)
+            => !IsUsernameEmpty(session) && GetUserId(session) != -1;
+
+        public static string GetUsername(this ISession session)
+            => session.GetString(SessionKeys.Username);
+
+        public static int GetUserId(this ISession session)
+            => session.GetInt32(SessionKeys.UserId) ?? -1;
     }
 }

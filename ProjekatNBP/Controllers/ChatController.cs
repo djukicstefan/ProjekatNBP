@@ -23,8 +23,8 @@ namespace ProjekatNBP.Controllers
 
         public IActionResult Index()
         {
-            int userId = HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
-            if (HttpContext.Session.IsUsernameEmpty() || userId == -1)
+            var userId = HttpContext.Session.GetUserId();
+            if (!HttpContext.Session.IsLoggedIn())
                 return RedirectToAction("Login", "Home");
 
             return View(RedisManager<Room>.GetAllFromSet($"users:{userId}:rooms").ToArray());
@@ -32,7 +32,7 @@ namespace ProjekatNBP.Controllers
 
         public IActionResult GetMessages(string room)
         {
-            int userId = HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
+            var userId = HttpContext.Session.GetUserId();
             var msgs = RedisManager<Message>.GetAll($"rooms:{room}");
 
             for (int i = 0; i < msgs.Length; i++)
@@ -44,28 +44,21 @@ namespace ProjekatNBP.Controllers
 
         public async Task<IActionResult> StartConversation(string adName,string room)
         {
-            int userId = HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
-            string[] pom = room.Split(':');
+            var userId = HttpContext.Session.GetUserId();
+            var pom = room.Split(':');
 
             Dictionary<int, string> participants = new();
 
-            var statementText = new StringBuilder();
-            statementText.Append($"MATCH (u:User) WHERE id(u) = {userId} OR id(u) = {pom[2]} RETURN u");
-
-            IResultCursor result;
             IAsyncSession session = _driver.AsyncSession();
             try
             {
-                result = await session.RunAsync(statementText.ToString());
-                var users = await result.ToListAsync();
-                users.ForEach(x => {
-                    INode node = x["u"].As<INode>();
-                    participants[(int)node.Id] = node.Properties["username"].ToString();
-                });
+                var result = await session.RunAsync($"MATCH (u:User) WHERE id(u) = {userId} OR id(u) = {pom[2]} RETURN u");
+                var l = await result.ToListAsync();
+                participants = l.ToDictionary(x => (int)(x["u"].As<INode>()).Id, x => x["u"].As<INode>().Properties["username"].ToString());
             }
             finally { await session.CloseAsync(); }
 
-            Room r = new(room, adName, participants);
+            var r = new Room(room, adName, participants);
 
             RedisManager<Room>.SetPush($"users:{userId}:rooms", r);
             RedisManager<Room>.SetPush($"users:{pom[2]}:rooms", r);

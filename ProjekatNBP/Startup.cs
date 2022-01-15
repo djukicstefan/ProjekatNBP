@@ -3,10 +3,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using StackExchange.Redis;
 using ProjekatNBP.Hubs;
 using Neo4j.Driver;
 using System;
-using StackExchange.Redis;
 
 namespace ProjekatNBP
 {
@@ -20,21 +20,16 @@ namespace ProjekatNBP
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            services.AddSession(options =>
-            {
-                options.IdleTimeout = TimeSpan.FromDays(1);
-            });
+            services.AddSession(options => options.IdleTimeout = TimeSpan.FromDays(1));
             driver = GraphDatabase.Driver("bolt://localhost:7687", AuthTokens.Basic("neo4j", "17101"));
             services.AddSingleton(driver);
             services.AddSignalR().AddRedis("localhost:6379");
             services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost:6379,allowAdmin=true"));
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -44,7 +39,6 @@ namespace ProjekatNBP
             else
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
             app.UseSession();

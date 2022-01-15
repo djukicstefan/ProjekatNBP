@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace ProjekatNBP.Models
 {
-    public record Room(string Key, string adName = "", Dictionary<int, string> participants = null)
+    public record Room(string Key, string AdName = "", Dictionary<int, string> Participants = null)
     {
-        public Message[] GetMessages() => RedisManager<Message>.GetAll($"rooms:{Key}");
-        public void SendMessage(Message msg) => RedisManager<Message>.Push($"rooms:{Key}", msg);
+        public static Message[] GetMessages(string id) => RedisManager<Message>.GetAll($"rooms:{id}");
+        public static void SendMessage(string id, Message msg) => RedisManager<Message>.Push($"rooms:{id}", msg);
     }
 }
