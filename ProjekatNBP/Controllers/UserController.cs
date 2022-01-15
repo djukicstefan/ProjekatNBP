@@ -68,8 +68,8 @@ namespace ProjekatNBP.Controllers {
 
         [HttpPost]
         public async Task<IActionResult> Register(string username, string email, string city, string phone, string password) {
-            if (!HttpContext.Session.IsLoggedIn())
-                return RedirectToAction("Login", "Home");
+            if (HttpContext.Session.IsLoggedIn())
+                return RedirectToAction("Index", "Home");
 
             var session = _driver.AsyncSession();
             try {
