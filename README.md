@@ -1,7 +1,7 @@
 # Projekat iz predmeta Napredne Baze Podataka
-  Stefan Đukić 17101
-  Miroslav Egerić 17105
-  Damir Žerić 17106
+- Stefan Đukić 17101
+- Miroslav Egerić 17105
+- Damir Žerić 17106
   
 
 
