@@ -1,4 +1,9 @@
 # Projekat iz predmeta Napredne Baze Podataka
+  Stefan Đukić 17101
+  Miroslav Egerić 17105
+  Damir Žerić 17106
+  
+
 
 Projekat će obuhvatati baze **Redis** i **Neo4j**. 
 Ideja nam je da napravimo sajt koji će omogućiti korisnicima prodaju i kupovinu na internetu.
