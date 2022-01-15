@@ -20,11 +20,11 @@
                 <a class="chat-user-link" asp-controller="Chat" asp-action="Index" asp-route-room="@item.Key" asp-route-adName="@item.adName">
                     @if (item.Key == room)
                     {
-                        <div class="row border-bottom text-light bg-primary room-item"> <h5 class="m-2">@item.participants.FirstOrDefault(x => x.Key != userId).Value - @item.adName </h5> </div>
+                        <div class="row border-bottom text-light bg-primary room-item"> <h5 class="m-2">@item.participants?.FirstOrDefault(x => x.Key != userId).Value - @item.adName </h5> </div>
                     }
                     else
                     {
-                        <div class="row border-bottom text-dark room-item"> <h5 class="m-2">@item.participants.FirstOrDefault(x => x.Key != userId).Value - @item.adName</h5> </div>
+                        <div class="row border-bottom text-dark room-item"> <h5 class="m-2">@item.participants?.FirstOrDefault(x => x.Key != userId).Value - @item.adName</h5> </div>
                     }
                 </a>
             }
@@ -34,7 +34,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-12 border-bottom border-dark">
-                        <h5 class="m-2"><span id="userName">@adName</span>&nbsp;&nbsp;&nbsp;<span>👍</span></h5>
+                        <h5 class="m-2"><span id="userName">@adName</span>&nbsp;&nbsp;&nbsp;<span><a asp-controller="Chat" asp-action="LikeUser" asp-route-idUser="">👍</a></span></h5>
                     </div>
                 </div>
 

@@ -71,5 +71,10 @@ namespace ProjekatNBP.Controllers
 
             return RedirectToAction("Index", "Chat", new { room, adName });
         }
+
+        public async Task<IActionResult> LikeUser(int idUser)
+        {
+
+        }
     }
 }
