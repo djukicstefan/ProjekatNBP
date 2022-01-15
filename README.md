@@ -18,5 +18,6 @@ Koristićemo bazu **Neo4j** za:
 - Predstavljanje oglasa i korisničkih profila,
 - Personalizaciju i preporuku oglasa korisnicima.
 
-
 ## Neo4j baza se kreira sa imenom "neo4j" i lozinkom "17101".
+
+## Napomena!!! Potrebno je ugasiti bilo kakav Ad blocker ukoliko postoji, jer imamo podatke koji sadrže reč Ad u imenu i Ad blockeri ih blokiraju. 
