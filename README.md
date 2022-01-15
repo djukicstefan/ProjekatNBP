@@ -17,3 +17,6 @@ Koristićemo bazu **Redis** za:
 Koristićemo bazu **Neo4j** za:
 - Predstavljanje oglasa i korisničkih profila,
 - Personalizaciju i preporuku oglasa korisnicima.
+
+
+## Neo4j baza se kreira sa imenom "neo4j" i lozinkom "17101".
