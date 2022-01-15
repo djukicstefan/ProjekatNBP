@@ -17,7 +17,8 @@
                                 <h5 class="card-title">@ad.Name</h5>
                                 <h6 class="card-subtitle mb-2 text-muted">@ad.Category</h6>
                                 <h6 class="card-subtitle mb-2 text-muted">Cena: @ad.Price</h6>
-                                <p class="card-text">@ad.Description</p>                                
+                                <p class="card-text">@ad.Description</p>
+                                <a asp-controller="Home" asp-action="AdView" asp-route-adId="@ad.Id" class="card-link">Otvori</a>
                             </div>
                         </div>
                     </div>                    

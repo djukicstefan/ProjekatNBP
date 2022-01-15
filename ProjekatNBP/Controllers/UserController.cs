@@ -85,6 +85,17 @@ namespace ProjekatNBP.Controllers
             return RedirectToAction("Register", "Home");
         }
 
+        public IActionResult Logout()
+        {
+            int userId = HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
+            if (HttpContext.Session.IsUsernameEmpty() || userId == -1)
+                return RedirectToAction("Login", "Home");
+
+            HttpContext.Session.Clear();
+
+            return RedirectToAction("Index", "Home");
+        }
+
         public async Task<IActionResult> PlaceAd(string name, string category, string price, string description)
         {
             int userId = HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
