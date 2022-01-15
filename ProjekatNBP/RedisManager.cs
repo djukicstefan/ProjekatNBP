@@ -53,5 +53,11 @@ namespace ProjekatNBP
 
         public static void Publish(string path, T data)
             => RedisManager.Database.Publish(path, Serialize(data));
+
+        public static void IncrementSortedSet(string path, T data, int byScore = 1)
+            => RedisManager.Database.SortedSetAdd(path, Serialize(data), (RedisManager.Database.SortedSetScore(path, Serialize(data)) ?? 0) + byScore);
+
+        public static (T data, int score)[] GetSortedSet(string path, int count)
+            => RedisManager.Database.SortedSetScan(path).Take(count).Select(x => (Deserialize(x.Element), (int)x.Score)).ToArray();
     }
 }
