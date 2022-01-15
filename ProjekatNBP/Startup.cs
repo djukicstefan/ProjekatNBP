@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using ProjekatNBP.Hubs;
 using Neo4j.Driver;
 using System;
+using StackExchange.Redis;
 
 namespace ProjekatNBP
 {
@@ -30,6 +31,7 @@ namespace ProjekatNBP
             driver = GraphDatabase.Driver("bolt://localhost:7687", AuthTokens.Basic("neo4j", "17101"));
             services.AddSingleton(driver);
             services.AddSignalR().AddRedis("localhost:6379");
+            services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost:6379,allowAdmin=true"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

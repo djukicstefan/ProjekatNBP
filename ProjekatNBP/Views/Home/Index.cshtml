@@ -272,9 +272,14 @@
                     }
                     @foreach (string notification in RedisManager<string>.GetAll($"users:{userId}:notifications"))
                     {
+                        string[] temp = notification.Split('|');
+                        if (temp.Length < 2)
+                            continue;
+
                     <div id="not-@id" class="row">
-                        <div class="col-10"><h6>@notification</h6></div>
+                        <div class="col-8"><h6>@temp[0]</h6></div>
                         <div class="col-2"><a href="#" onclick="RemoveItem('@($"users:{userId}:notifications")', '@notification', '#not-@(id++)')">X</a></div>
+                        <div class="col-2"><a asp-controller="Home" asp-action="AdView" asp-route-adId='@(int.Parse(temp[1]))'>Otvori</a></div>
                     </div>
                     }
                 </div>
@@ -293,11 +298,18 @@
         console.log(err)
     });
 
-    conn.on('AdPosted', (AdName, UserName) => {
+    conn.on('NotificationReceived', (obj) => {
+        const { followers, adId, adName, userId, userName } = obj;
+
+        if (!followers.find(x => '@userId'))
+            return
+        const notification = `${userName} je postavio novi oglas - ${adName}`
+        const url = `@(Url.Action("AdView", "Home"))?adId='${parseInt(adId)}`;
         const item = `<div id="not-@id" class="row">
-                          <div class="col-10"><h6>${UserName} je postavio oglas - ${AdName}</h6></div>
-                          <div class="col-2"><a href="#" onclick="">X</a></div>
-                      </div>`
+                          <div class="col-8"><h6></h6>${notification}</div>
+                          <div class="col-2"><a href="#" onclick="RemoveItem('@($"users:{userId}:notifications")', '${notification}|${adId}', '#not-@(id++)')">X</a></div>
+                          <div class="col-2"><a href=${url}> Otvori </a></div>
+                       </div>`
         $('#notification-container').append(item);
         $('#notification-bell').attr('src', '/img/bell_notification.png')
     });
@@ -306,6 +318,10 @@
         conn.invoke("AdPosted", $('#ad-name').val()).catch(function (err) {
             return console.error(err.toString());
         })
+
+        conn.invoke("Subscribe", 'user:0:followers').catch(function (err) {
+			return console.error(err.toString());
+		});
     });
 
     function RemoveItem(path, item, id)
@@ -316,6 +332,8 @@
             data: {path, item},
             success: () => {
                 $(id).remove();
+                if (document.getElementById('notification-container').childElementCount == 0)
+                    document.getElementById('notification-bell').src = '/img/bell.png';
             },
             error: () => {
                 alert("Something went wrong");

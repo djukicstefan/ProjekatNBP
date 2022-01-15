@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Neo4j.Driver;
 using ProjekatNBP.Extensions;
+using ProjekatNBP.Hubs;
+using ProjekatNBP.Models;
 using ProjekatNBP.Session;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,10 +18,28 @@ namespace ProjekatNBP.Controllers
     public class UserController : Controller
     {
         private readonly IDriver _driver;
+        private readonly IConnectionMultiplexer _redis;
+        private readonly IHubContext<AdsHub> _hub;
 
-        public UserController(IDriver driver)
+        private static object _lock = new object();
+        private static bool _firstTimeRun = true;
+        public UserController(IDriver driver, IHubContext<AdsHub> hub, IConnectionMultiplexer redis)
         {
             _driver = driver;
+            _hub = hub;
+            _redis = redis;
+
+            lock (_lock)
+            {
+                if (!_firstTimeRun) return;
+                _firstTimeRun = false;
+
+                RedisManager<AdNotification>.Subscribe("AdPostedNotification", async (channel, data) => {
+                    data.followers.ToList().ForEach(x=> RedisManager<string>
+                        .Push($"users:{x}:notifications", $"{data.userName} je postavio novi oglas - {data.adName}|{data.adId}"));
+                    await hub.Clients.All.SendAsync("NotificationReceived", data);
+                });
+            }
         }
 
         [HttpPost]
@@ -88,6 +110,7 @@ namespace ProjekatNBP.Controllers
         public async Task<IActionResult> PlaceAd(string name, string category, string price, string description)
         {
             int userId = HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
+            string userName = HttpContext.Session.GetString(SessionKeys.Username);
             if (HttpContext.Session.IsUsernameEmpty() || userId == -1)
                 return RedirectToAction("Login", "Home");
 
@@ -119,7 +142,7 @@ namespace ProjekatNBP.Controllers
                 adId = await result.SingleAsync(record => record["id(ad)"].As<int>());
 
                 if(adId == -1)
-                    return RedirectToAction("Index", "Home"); //ako ne prodje pravljenje oglasa -> da se smisli nesto bolje
+                    return RedirectToAction("Index", "Home");
 
                 statementText.Clear();
                 statementText.Append(@$"MATCH(c:Category) WHERE id(c)={categoryID} 
@@ -134,11 +157,23 @@ namespace ProjekatNBP.Controllers
                                     CREATE (u)-[:POSTED]->(ad)");
                 session = _driver.AsyncSession();
                 result = await session.WriteTransactionAsync(tx => tx.RunAsync(statementText.ToString()));
+
+                try
+                {
+                    result = await session.RunAsync($"MATCH p=(u1:User)-[r:FOLLOW]->(u2:User) WHERE id(u2)={userId} RETURN id(u1)");
+                    var idList = await result.ToListAsync();
+                    var ids = idList?.Select(x => x["id(u1)"].As<string>()).ToArray() ?? new string[0];
+                    
+                    RedisManager<AdNotification>.Publish("AdPostedNotification", new AdNotification(ids, adId, name, userId, userName));
+                }
+                finally { await session.CloseAsync(); }
+
             }
             finally
             {
                 await session.CloseAsync();
             }
+
 
             return RedirectToAction("Index", "Home");
         }

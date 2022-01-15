@@ -42,6 +42,7 @@ namespace ProjekatNBP.Hubs
                 idList.ForEach(x => RedisManager<string>.Push($"users:{x["id(u1)"].As<string>()}:notifications", $"{UserName} je postavio novi oglas - {adName}"));
             }
             finally { await session.CloseAsync(); }
+
             await Clients.Group(UserId.Value.ToString()).SendAsync("AdPosted", adName, UserName);
         }
 
