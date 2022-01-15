@@ -70,21 +70,16 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td><a href="#">Mark</a></td>
-                                <td class="text-success">2343</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">2</th>
-                                <td><a href="#">Jacob</a></td>
-                                <td class="text-success">1230</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">3</th>
-                                <td><a href="#">Larry</a></td>
-                                <td class="text-success">887</td>
-                            </tr>
+                            @{ 
+                                int i = 0;
+                                foreach(var item in Model.Leaderboard) {
+                                 <tr>
+                                    <th scope="row">@(++i)</th>
+                                    <td>@item.userInfo.Username</td>
+                                    <td class="text-success">@item.score</td>
+                                </tr>
+                                }
+                            }
                         </tbody>
                     </table>
                 </div>

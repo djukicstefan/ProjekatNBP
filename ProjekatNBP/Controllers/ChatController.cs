@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using Neo4j.Driver;
 using System.Threading.Tasks;
+using System;
 
 namespace ProjekatNBP.Controllers
 {
@@ -64,7 +65,7 @@ namespace ProjekatNBP.Controllers
             }
             finally { await session.CloseAsync(); }
 
-            Room r = new Room(room, adName, participants);
+            Room r = new(room, adName, participants);
 
             RedisManager<Room>.SetPush($"users:{userId}:rooms", r);
             RedisManager<Room>.SetPush($"users:{pom[2]}:rooms", r);
@@ -72,9 +73,23 @@ namespace ProjekatNBP.Controllers
             return RedirectToAction("Index", "Chat", new { room, adName });
         }
 
-        public async Task<IActionResult> LikeUser(int idUser)
+        [HttpPost]
+        public async Task<IActionResult> LikeUser(int userId)
         {
-
+            IAsyncSession session = _driver.AsyncSession();
+            try {
+                var result = await session.RunAsync($"MATCH (u:User) WHERE id(u) = {userId} RETURN u.username");
+                var item = await result.SingleAsync();
+                var userName = item.Values[item.Keys[0]].ToString();
+                RedisManager<UserInfo>.IncrementSortedSet($"leaderboard", new(userId, userName));
+                return Json(new { success = true });
+            }
+            catch(Exception e) {
+                return Json(new { success = false, error = e.Message });
+            }
+            finally {
+                await session.CloseAsync();
+            }
         }
     }
 }

@@ -1,16 +1,16 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Neo4j.Driver;
-using ProjekatNBP.Extensions;
-using ProjekatNBP.Models;
-using ProjekatNBP.Session;
-using System;
+﻿using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using ProjekatNBP.Extensions;
+using ProjekatNBP.Session;
 using System.Diagnostics;
+using ProjekatNBP.Models;
+using Neo4j.Driver;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System;
 
 namespace ProjekatNBP.Controllers
 {
@@ -19,15 +19,17 @@ namespace ProjekatNBP.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IDriver _driver;
 
+        public (UserInfo, int)[] Leaderboard => RedisManager<UserInfo>.GetSortedSet("leaderboard", 10);
+
         public HomeController(ILogger<HomeController> logger, IDriver driver)
         {
             _logger = logger;
             _driver = driver;
         }
 
-        public async Task<IActionResult> Index(string category)
+        public async Task<IActionResult> Index()
         {
-            List<Category> categoryList = new List<Category>();
+            List<Category> categoryList = new();
             List<Ad> adList = null;
             List<Ad> adRecomendList = null;
 
@@ -40,8 +42,7 @@ namespace ProjekatNBP.Controllers
                 categories.ForEach(cat =>
                 {
                     INode category = cat["c"].As<INode>();
-                    Category category1 = new Category
-                    {
+                    Category category1 = new() {
                         Id = (int)category.Id,
                         Name = category.Properties["name"].ToString()
                     };
@@ -57,7 +58,7 @@ namespace ProjekatNBP.Controllers
                     relationships.ForEach(rel =>
                     {
                         INode rel1 = rel["ad"].As<INode>();
-                        Ad ad = new Ad
+                        var ad = new Ad
                         {
                             Id = (int)rel1.Id,
                             Name = rel1.Properties["name"].ToString(),
@@ -74,7 +75,7 @@ namespace ProjekatNBP.Controllers
                 if (userId >= 0)
                 {
                     adList = new List<Ad>();
-                    StringBuilder statementText = new StringBuilder();
+                    StringBuilder statementText = new();
                     session = _driver.AsyncSession();
                     statementText.Append(@$"MATCH (u:User)-[r:VISITED]-(ad:Ad) 
                                     WHERE id(u)={userId} 
@@ -88,16 +89,13 @@ namespace ProjekatNBP.Controllers
                     {
                         INode aa = a["ad"].As<INode>();
 
-                        Ad ad = new Ad
-                        {
+                        adList.Add(new Ad {
                             Id = (int)aa.Id,
                             Name = aa.Properties["name"].ToString(),
                             Category = aa.Properties["category"].ToString(),
                             Price = aa.Properties["price"].ToString(),
                             Description = aa.Properties["description"].ToString()
-                        };
-
-                        adList.Add(ad);
+                        });
                     });
 
                     statementText.Clear();
@@ -129,8 +127,7 @@ namespace ProjekatNBP.Controllers
                         {
                             INode aa = a["ad"].As<INode>();
 
-                            Ad ad = new Ad
-                            {
+                            Ad ad = new() {
                                 Id = (int)aa.Id,
                                 Name = aa.Properties["name"].ToString(),
                                 Category = aa.Properties["category"].ToString(),
@@ -138,7 +135,7 @@ namespace ProjekatNBP.Controllers
                                 Description = aa.Properties["description"].ToString()
                             };
 
-                            Ad tmp = adList.Find(x => x.Id == ad.Id);
+                            var tmp = adList.Find(x => x.Id == ad.Id);
                             if(tmp == null)
                                 adRecomendList.Add(ad);
                         });
@@ -150,7 +147,7 @@ namespace ProjekatNBP.Controllers
                 await session.CloseAsync();
             }
 
-            return View(new Ads { CategoryList = categoryList, AdList = adList, AdRecomendList = adRecomendList });
+            return View(new Ads { CategoryList = categoryList, AdList = adList, AdRecomendList = adRecomendList, Leaderboard = Leaderboard });
         }
 
         public IActionResult Privacy()
