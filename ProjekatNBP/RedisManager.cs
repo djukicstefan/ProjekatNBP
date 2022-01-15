@@ -58,6 +58,6 @@ namespace ProjekatNBP
             => RedisManager.Database.SortedSetAdd(path, Serialize(data), (RedisManager.Database.SortedSetScore(path, Serialize(data)) ?? 0) + byScore);
 
         public static (T data, int score)[] GetSortedSet(string path, int count)
-            => RedisManager.Database.SortedSetScan(path).Take(count).Select(x => (Deserialize(x.Element), (int)x.Score)).ToArray();
+            => RedisManager.Database.SortedSetScan(path).TakeLast(count).Reverse().Select(x => (Deserialize(x.Element), (int)x.Score)).ToArray();
     }
 }

@@ -7,7 +7,7 @@
     var room = ViewContext.HttpContext.Request.Query.Count > 0 ? ViewContext.HttpContext.Request.Query["room"].FirstOrDefault() : "";
     var adName = ViewContext.HttpContext.Request.Query.Count > 0 ? ViewContext.HttpContext.Request.Query["adName"].FirstOrDefault() : "";
     int userId = ViewContext.HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
-    var otherParticipant = @Model.First(x => x.Key == room).participants?.FirstOrDefault(x => x.Key != userId).Key;
+    var otherParticipant = @Model.FirstOrDefault(x => x.Key == room)?.participants?.FirstOrDefault(x => x.Key != userId).Key;
 }
 
 <div class="container mt-2">
@@ -35,7 +35,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-12 border-bottom border-dark">
-                        <h5 class="m-2"><span id="userName">@adName</span>&nbsp;&nbsp;&nbsp;<span><button id="btnLike" onclick="likeUser(@otherParticipant)">👍</button></span></h5>
+                        <h5 class="m-2"><span id="userName">@adName</span>&nbsp;&nbsp;&nbsp;<span id="btnLike" onclick="likeUser(@otherParticipant)">👍</span></h5>
                     </div>
                 </div>
 
