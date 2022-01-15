@@ -4,20 +4,40 @@
     ViewData["Title"] = "Korisnički profil";
 }
 
-<div class="col-7">
-    <div class="container">
-        <div class="row main-row">
-            <div class="col-4 d-flex justify-content-center">
-                <div class="card card-shadow" style="width: 18rem;">
-                    <div class="card-body">
-                        <h5 class="card-subtitle mb-2 text-muted">Korisničko ime: @Model.Username</h5>
-                        <h5 class="card-subtitle mb-2 text-muted">Email: @Model.Email</h5>
-                        <h5 class="card-subtitle mb-2 text-muted">Grad: @Model.City</h5>
-                        <h5 class="card-subtitle mb-2 text-muted">Broj telefona: @Model.Phone</h5>                        
-                        <button class="btn-default" onclick="@($"OpenModalPopUp('{Model.Id}', '{Model.Username}', '{Model.Email}', '{Model.City}', '{Model.Phone}', '{Model.Password}')");">Izmeni podatke</button>
-                    </div>
-                </div>
-            </div>
+<div class="container">
+    <div class="row main-row d-flex justify-content-center">
+        <div class="col-6 mt-4">
+
+
+            <table class="table table-striped bg-light">
+                <tbody>
+                    <tr>
+                        <th scope="row">Korisničko ime:</th>
+                        <td>@Model.Username</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Email:</th>
+                        <td>@Model.Email</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Grad:</th>
+                        <td>@Model.City</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Broj telefona:</th>
+                        <td>@Model.Phone</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Izmenite podatke:</th>
+                        <td>
+                            <button class="btn btn-primary" onclick="@($"OpenModalPopUp('{Model.Id}', '{Model.Username}', '{Model.Email}', '{Model.City}', '{Model.Phone}', '{Model.Password}')");">Izmeni</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+
         </div>
     </div>
 </div>
@@ -51,14 +71,14 @@
                     </div>
                     <div class="form-group">
                         <label for="password">Lozinka</label>
-                        <input type="password" name="password" class="form-control" id="password" placeholder="Šifra">
+                        <input type="password" name="password" class="form-control" id="password" placeholder="Lozinka">
                     </div>
                     <div class="form-group">
                         <label for="register-password-confirm">Ponovite lozinku</label>
                         <input type="password" name="repassword" class="form-control" id="password-confirm" placeholder="Ponovite lozinku">
                     </div>
-                    <button type="submit" class="btn btn-danger" asp-action="ChangeData" asp-controller="User">Izmeni</button>
-                    <button type="submit" class="btn btn-primary" asp-action="Profile" asp-controller="Home">Odustani</button>
+                    <button type="submit" class="btn btn-success" asp-action="ChangeData" asp-controller="User">Izmeni</button>
+                    <button type="submit" class="btn btn-danger" asp-action="Profile" asp-controller="Home">Odustani</button>
                 </form>
             </div>
         </div>

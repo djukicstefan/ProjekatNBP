@@ -266,7 +266,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div class="container">
+                <div id="notification-container" class="container">
                     @{
                         int id = 0;
                     }
@@ -274,7 +274,7 @@
                     {
                     <div id="not-@id" class="row">
                         <div class="col-10"><h6>@notification</h6></div>
-                        <div class="col-2"><a href="#" onclick="RemoveItem('@($"users:{userId}:notifications")', '@notification', '#not-@id++')">X</a></div>
+                        <div class="col-2"><a href="#" onclick="RemoveItem('@($"users:{userId}:notifications")', '@notification', '#not-@(id++)')">X</a></div>
                     </div>
                     }
                 </div>
@@ -293,11 +293,16 @@
         console.log(err)
     });
 
-    conn.on("AdPosted", (AdName, UserName) => {
-        document.getElementById('ad-badge').style.display = 'inline';
+    conn.on('AdPosted', (AdName, UserName) => {
+        const item = `<div id="not-@id" class="row">
+                          <div class="col-10"><h6>${UserName} je postavio oglas - ${AdName}</h6></div>
+                          <div class="col-2"><a href="#" onclick="">X</a></div>
+                      </div>`
+        $('#notification-container').append(item);
+        $('#notification-bell').attr('src', '/img/bell_notification.png')
     });
 
-    $("#submit-ad").click(() => {
+    $('#submit-ad').click(() => {
         conn.invoke("AdPosted", $('#ad-name').val()).catch(function (err) {
             return console.error(err.toString());
         })
