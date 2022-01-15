@@ -11,8 +11,8 @@
 @using Microsoft.AspNetCore.Http;
 @using ProjekatNBP.Session;
 @{
-
-    bool isLoged = ViewContext.HttpContext.Session.GetInt32(SessionKeys.UserId) >= 0;
+    int userId = ViewContext.HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
+    bool isLoged = userId >= 0;
 }
 
 <body>
@@ -35,9 +35,6 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="MineAds">Moji oglasi</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#" data-toggle="modal" data-target="#adModal">Postavi oglas</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Chat" asp-action="Index">Poruke <span class="badge badge-danger badge-pill"></span></a>
@@ -81,6 +78,94 @@
     <script src="~/lib/jquery/dist/jquery.js"></script>
 
     @RenderBody()
+
+
+    <div class="modal fade" id="notificationModal" tabindex="-1" role="dialog" aria-labelledby="notificationModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="notificationModalLongTitle">Notifikacije</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="notification-container" class="container">
+                        @{
+                            int id = 0;
+                        }
+                        @foreach (string notification in RedisManager<string>.GetAll($"users:{userId}:notifications"))
+                        {
+                            string[] temp = notification.Split('|');
+                            if (temp.Length < 2)
+                                continue;
+
+                            <div id="not-@id" class="row">
+                                <div class="col-8"><h6>@temp[0]</h6></div>
+                                <div class="col-2"><a href="#" onclick="RemoveItem('@($"users:{userId}:notifications")', '@notification', '#not-@(id++)')">X</a></div>
+                                <div class="col-2"><a asp-controller="Home" asp-action="AdView" asp-route-adId='@(int.Parse(temp[1]))'>Otvori</a></div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+    var conn = new signalR.HubConnectionBuilder().withUrl("/hub/Ads").build()
+
+    conn.start().then(() => {
+
+    }).catch((err) => {
+        console.log(err)
+    });
+
+    conn.on('NotificationReceived', (obj) => {
+        const { followers, adId, adName, userId, userName } = obj;
+
+        if (!followers.find(x => '@userId'))
+            return
+        const notification = `${userName} je postavio novi oglas - ${adName}`
+        const url = `@(Url.Action("AdView", "Home"))?adId='${parseInt(adId)}`;
+        const item = `<div id="not-@id" class="row">
+                          <div class="col-8"><h6></h6>${notification}</div>
+                          <div class="col-2"><a href="#" onclick="RemoveItem('@($"users:{userId}:notifications")', '${notification}|${adId}', '#not-@(id++)')">X</a></div>
+                          <div class="col-2"><a href=${url}> Otvori </a></div>
+                       </div>`
+        $('#notification-container').append(item);
+        $('#notification-bell').attr('src', '/img/bell_notification.png')
+    });
+
+    $('#submit-ad').click(() => {
+        conn.invoke("AdPosted", $('#ad-name').val()).catch(function (err) {
+            return console.error(err.toString());
+        })
+
+        conn.invoke("Subscribe", 'user:0:followers').catch(function (err) {
+			return console.error(err.toString());
+		});
+    });
+
+    function RemoveItem(path, item, id)
+    {
+        $.ajax({
+            type: "DELETE",
+            url: '@Url.Action("RemoveNotification", "Home")',
+            data: {path, item},
+            success: () => {
+                $(id).remove();
+                if (document.getElementById('notification-container').childElementCount == 0)
+                    document.getElementById('notification-bell').src = '/img/bell.png';
+            },
+            error: () => {
+                alert("Something went wrong");
+            }
+        });
+    }
+    </script>
+
 
     <script>
         if (document.getElementById('notification-container').childElementCount > 0)

@@ -5,6 +5,7 @@
 @{
     ViewData["Title"] = "Početna";
     int userId = ViewContext.HttpContext.Session.GetInt32(SessionKeys.UserId) ?? -1;
+    bool isLoged = userId >= 0;
 }
 
 <div class="container-fluid">
@@ -45,8 +46,11 @@
                                             <h6 class="card-subtitle mb-2 text-muted">@ad.Category</h6>
                                             <h6 class="card-subtitle mb-2 text-muted">Cena: @ad.Price</h6>
                                             <p class="card-text">@ad.Description</p>
-                                            <a asp-controller="Home" asp-action="AdView" asp-route-adId="@ad.Id" class="card-link">Otvori</a>
-                                            <a asp-controller="User" asp-action="SaveAd" asp-route-adId="@ad.Id" class="card-link">Sacuvaj</a>
+                                            @if (isLoged)
+                                            {
+                                                <a asp-controller="Home" asp-action="AdView" asp-route-adId="@ad.Id" class="card-link">Otvori</a>
+                                                <a asp-controller="User" asp-action="SaveAd" asp-route-adId="@ad.Id" class="card-link">Sacuvaj</a>
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -70,14 +74,15 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @{ 
+                            @{
                                 int i = 0;
-                                foreach(var item in Model.Leaderboard) {
-                                 <tr>
-                                    <th scope="row">@(++i)</th>
-                                    <td><a asp-controller="Home" asp-action="UserAds" asp-route-idUser="@item.userInfo.Id">@item.userInfo.Username</a></td>
-                                    <td class="text-success">@item.score</td>
-                                </tr>
+                                foreach (var item in Model.Leaderboard)
+                                {
+                                    <tr>
+                                        <th scope="row">@(++i)</th>
+                                        <td><a asp-controller="Home" asp-action="UserAds" asp-route-idUser="@item.userInfo.Id">@item.userInfo.Username</a></td>
+                                        <td class="text-success">@item.score</td>
+                                    </tr>
                                 }
                             }
                         </tbody>
@@ -86,64 +91,70 @@
             </div>
         </div>
     </div>
-
-    <div class="row m-2 pt-5">
-        <div class="col-12 mb-3 text-light">
-            <h3>Nedavno posećeni oglasi:</h3>
-        </div>
-        @if (Model.AdList != null)
-        {
-            @foreach (var ad in Model.AdList)
+    @if (isLoged)
+    {
+        <div class="row m-2 pt-5">
+            <div class="col-12 mb-3 text-light">
+                <h3>Nedavno posećeni oglasi:</h3>
+            </div>
+            @if (Model.AdList != null)
             {
-                <div class="col-2 d-flex justify-content-center">
-                    <div class="card card-shadow" style="width: 18rem;">
-                        <div class="card-body">
-                            <h5 class="card-title">@ad.Name</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">@ad.Category</h6>
-                            <h6 class="card-subtitle mb-2 text-muted">Cena: @ad.Price</h6>
-                            <p class="card-text">@ad.Description</p>
-                            <a asp-controller="Home" asp-action="AdView" asp-route-adId="@ad.Id" class="card-link">Otvori</a>
-                            <a asp-controller="User" asp-action="SaveAd" asp-route-adId="@ad.Id" class="card-link">Sacuvaj</a>
+                @foreach (var ad in Model.AdList)
+                {
+                    <div class="col-2 d-flex justify-content-center">
+                        <div class="card card-shadow" style="width: 18rem;">
+                            <div class="card-body">
+                                <h5 class="card-title">@ad.Name</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">@ad.Category</h6>
+                                <h6 class="card-subtitle mb-2 text-muted">Cena: @ad.Price</h6>
+                                <p class="card-text">@ad.Description</p>
+                                <a asp-controller="Home" asp-action="AdView" asp-route-adId="@ad.Id" class="card-link">Otvori</a>
+                                <a asp-controller="User" asp-action="SaveAd" asp-route-adId="@ad.Id" class="card-link">Sacuvaj</a>
+                            </div>
                         </div>
                     </div>
-                </div>
+                }
             }
-        }
-        else
-        {
-            <p>Niste posetili ni jedan oglas.</p>
-        }
-    </div>
-
-    <div class="row m-2 pt-5">
-        <div class="col-12 mb-3 text-light">
-            <h3>Preporučeno za vas:</h3>
-        </div>
-        @if (Model.AdRecomendList != null)
-        {
-            @foreach (var ad in Model.AdRecomendList)
+            else
             {
-                <div class="col-2 d-flex justify-content-center">
-                    <div class="card card-shadow" style="width: 18rem;">
-                        <div class="card-body">
-                            <h5 class="card-title">@ad.Name</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">@ad.Category</h6>
-                            <h6 class="card-subtitle mb-2 text-muted">Cena: @ad.Price</h6>
-                            <p class="card-text">@ad.Description</p>
-                            <a asp-controller="Home" asp-action="AdView" asp-route-adId="@ad.Id" class="card-link">Otvori</a>
-                            <a asp-controller="User" asp-action="SaveAd" asp-route-adId="@ad.Id" class="card-link">Sacuvaj</a>
+                <p>Niste posetili ni jedan oglas.</p>
+            }
+        </div>
+
+        <div class="row m-2 pt-5">
+            <div class="col-12 mb-3 text-light">
+                <h3>Preporučeno za vas:</h3>
+            </div>
+            @if (Model.AdRecomendList != null)
+            {
+                @foreach (var ad in Model.AdRecomendList)
+                {
+                    <div class="col-2 d-flex justify-content-center">
+                        <div class="card card-shadow" style="width: 18rem;">
+                            <div class="card-body">
+                                <h5 class="card-title">@ad.Name</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">@ad.Category</h6>
+                                <h6 class="card-subtitle mb-2 text-muted">Cena: @ad.Price</h6>
+                                <p class="card-text">@ad.Description</p>
+                                <a asp-controller="Home" asp-action="AdView" asp-route-adId="@ad.Id" class="card-link">Otvori</a>
+                                <a asp-controller="User" asp-action="SaveAd" asp-route-adId="@ad.Id" class="card-link">Sacuvaj</a>
+                            </div>
                         </div>
                     </div>
-                </div>
+                }
             }
-        }
-        else
-        {
-            <p>Još nemamo dovoljno podataka o vama</p>
-        }
-    </div>
+            else
+            {
+                <p>Još nemamo dovoljno podataka o vama</p>
+            }
+        </div>
+    }
 </div>
 
+@if (isLoged)
+{
+    <button class="add-ad-btn btn btn-primary" data-toggle="modal" data-target="#adModal">Postavi oglas</button>
+}
 
 <!-- Forma za prijavu -->
 <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalTitle" aria-hidden="true">
@@ -249,90 +260,3 @@
         </div>
     </div>
 </div>
-
-
-<div class="modal fade" id="notificationModal" tabindex="-1" role="dialog" aria-labelledby="notificationModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="notificationModalLongTitle">Notifikacije</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div id="notification-container" class="container">
-                    @{
-                        int id = 0;
-                    }
-                    @foreach (string notification in RedisManager<string>.GetAll($"users:{userId}:notifications"))
-                    {
-                        string[] temp = notification.Split('|');
-                        if (temp.Length < 2)
-                            continue;
-
-                    <div id="not-@id" class="row">
-                        <div class="col-8"><h6>@temp[0]</h6></div>
-                        <div class="col-2"><a href="#" onclick="RemoveItem('@($"users:{userId}:notifications")', '@notification', '#not-@(id++)')">X</a></div>
-                        <div class="col-2"><a asp-controller="Home" asp-action="AdView" asp-route-adId='@(int.Parse(temp[1]))'>Otvori</a></div>
-                    </div>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<script>
-    var conn = new signalR.HubConnectionBuilder().withUrl("/hub/Ads").build()
-
-    conn.start().then(() => {
-
-    }).catch((err) => {
-        console.log(err)
-    });
-
-    conn.on('NotificationReceived', (obj) => {
-        const { followers, adId, adName, userId, userName } = obj;
-
-        if (!followers.find(x => '@userId'))
-            return
-        const notification = `${userName} je postavio novi oglas - ${adName}`
-        const url = `@(Url.Action("AdView", "Home"))?adId='${parseInt(adId)}`;
-        const item = `<div id="not-@id" class="row">
-                          <div class="col-8"><h6></h6>${notification}</div>
-                          <div class="col-2"><a href="#" onclick="RemoveItem('@($"users:{userId}:notifications")', '${notification}|${adId}', '#not-@(id++)')">X</a></div>
-                          <div class="col-2"><a href=${url}> Otvori </a></div>
-                       </div>`
-        $('#notification-container').append(item);
-        $('#notification-bell').attr('src', '/img/bell_notification.png')
-    });
-
-    $('#submit-ad').click(() => {
-        conn.invoke("AdPosted", $('#ad-name').val()).catch(function (err) {
-            return console.error(err.toString());
-        })
-
-        conn.invoke("Subscribe", 'user:0:followers').catch(function (err) {
-			return console.error(err.toString());
-		});
-    });
-
-    function RemoveItem(path, item, id)
-    {
-        $.ajax({
-            type: "DELETE",
-            url: '@Url.Action("RemoveNotification", "Home")',
-            data: {path, item},
-            success: () => {
-                $(id).remove();
-                if (document.getElementById('notification-container').childElementCount == 0)
-                    document.getElementById('notification-bell').src = '/img/bell.png';
-            },
-            error: () => {
-                alert("Something went wrong");
-            }
-        });
-    }
-</script>

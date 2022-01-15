@@ -32,3 +32,11 @@
     width: 32px;
     height: 32px;
 }
+
+.add-ad-btn {
+    width: 80px;
+    height: 64px;
+    position: fixed; 
+    bottom: 40px; 
+    right: 48px;
+}
